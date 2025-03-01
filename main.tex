@@ -32,8 +32,47 @@ Além disso, o controle periódico do peso pode indicar animais que perderam pes
 Em suma, o controle de pesagem dos animais nas propriedades rurais reflete-se diretamente no controle da qualidade da vida animal e na rentabilidade em propriedades rurais de cunho comercial.
 
 \section{Problemática}
+A pesagem manual de animais em propriedades rurais apresenta desafio como a necessidade de mão de obra especializada,
+o estresse causado aos animais e a possibilidade de erros humanos na coleta e registro dos dados.
+Além disso, a falta de um controle de pesagem eficiente pode resultar em uma nutrição não otimizada,
+comprometendo o crescimento e a saúde dos animais. Na pecuária comercial,
+a ausência de um monitoramento preciso do peso impacta diretamente na produtividade e na lucratividade,
+dificultando a identificação precoce de doenças e problemas nutricionais.
+A implementação de um sistema automatizado de pesagem torna-se essencial para garantir um manejo mais eficiente e melhorar a qualidade de vida dos animais.
+
 \section{Motivação}
+
 \section{Proposta}
+O controle de pesagem dos animais em propriedades rurais é essencial para garantir a saúde e o qualidade adequada dos bovinos, equinos e outros animais. A pesagem manual feita com mão de obra humana apresenta desafios, como a necessidade de mão de obra especializada, estresse nos animais e possíveis erros humanos. Assim, um sistema automatizado de pesagem se torna uma solução eficiente para melhorar o manejo e a produtividade de criadouros.
+
+\subsection{Descrição do Sistema}
+O sistema proposto utilizará tecnologia NFC (Near Field Communication) para a identificação individual dos animais e um mecanismo de controle para garantir que apenas um animal seja pesado por vez. Cada animal usará um colar equipado com uma tag NFC única, permitindo sua identificação automática no momento da pesagem.
+
+\subsection{Mecanismo de Pesagem}
+O sistema contará com balanças eletrônicas cercadas por dois portões automatizados, que se fecharão assim que um animal entrar na balança. Antes da medição do peso, serão realizadas as seguintes verificações:
+
+\begin{itemize}
+    \item Verificação da tag NFC: O sistema identifica o animal e confirma a presença de apenas uma tag no momento da pesagem.
+    \item Verificação do peso: O peso detectado é comparado com um peso limite para garantir que corresponda a o peso de um único animal.
+\end{itemize}
+
+Se ambas as verificações forem aprovadas, o peso do animal será medido e registrado.
+
+\subsection{Armazenamento e Acesso aos Dados}
+As informações de cada pesagem, incluindo a tag NFC do animal e seu peso, serão armazenadas em um banco de dados SQL, e o acesso dos dados será feito por meio de uma aplicação web desenvolvida em Flask, que permitirá que os usuários:
+
+\begin{itemize}
+    \item Visualizem o peso individual de cada animal;
+    \item Ordenem a lista de animais pelo peso;
+    \item Visualizem a média de peso do rebanho;
+    \item Receber alertas automáticos caso haja variações e / ou anomalias no peso dos animais.
+\end{itemize}
+
+\subsection{Suporte de navegação com Chat IA}
+A aplicação contará com um chat com inteligência artificial de linguagem natural, permitindo que os usuários interajam com o sistema de maneira intuitiva. Os usuários poderiam acessar todas as informações do site por meio do chat, que interpretaria a pergunta e o levaria para a informação demandada sem a necessidade de um conhecimento de computadores prévio.
+
+O sistema de pesagem automática proporcionará um monitoramento eficiente e automatizado da saúde e do desenvolvimento dos animais, reduzindo erros, otimizando a nutrição e garantindo um manejo mais inteligente e produtivo na pecuária.
+
 \section{Tecnologias envolvidas}
 \section{Resultados esperados}
 \section{Cronograma}
