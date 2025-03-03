@@ -75,6 +75,15 @@ A aplicação contará com um chat com inteligência artificial de linguagem nat
 O sistema de pesagem automática proporcionará um monitoramento eficiente e automatizado da saúde e do desenvolvimento dos animais, reduzindo erros, otimizando a nutrição e garantindo um manejo mais inteligente e produtivo na pecuária.
 
 \section{Tecnologias envolvidas}
+O sistema contará, principalmente, com 3 componentes principais:
+\begin{itemize}
+    \item Célula de carga: trata-se de um dispositivo que medirá o peso, convertendo-os em sinais elétricos;
+    \item Sensor NFC (Near Field Communication): dispositivo esse que faz a troca de dados wireless entre dispositivos próximos
+    \item  tags NFC: elas armazenam os dados para identificação dos animais vinculados a elas, confirmando a presença deles ao se posicionarem sobre as células de carga
+\end{itemize}
+Além desses, o sistema também fará uso de ESP32, relê, protoboard, resistores e fios jumpers para a completa integração do sistema.
+
+Não só isso, será também necessário desenvolver o backend (bancos de dados) usando tecnologias como MySQL workbench, o acesso aos dados através do microframework Flask.
 \section{Resultados esperados}
 \section{Cronograma}
 
