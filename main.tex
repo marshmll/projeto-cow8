@@ -10,12 +10,13 @@
 \usepackage{hyphenat}
 \usepackage{xcolor}
 
-\title{\textbf{Projeto de Pesagem Automatizada de Gado (Sem título)}}
+\title{\textbf{Projeto MVP Cow8\\(Pesagem Automatizada de Gado)}}
 \author{
     Renan da Silva Oliveira Andrade (\texttt{renan.silva3@pucpr.edu.br})\\
     Ricardo Lucas Kucek (\texttt{ricardo.kucek@pucpr.edu.br})\\
     Pedro Senes Velloso Ribeiro (\texttt{pedro.senes@pucpr.edu.br})\\ 
-    Riscala Miguel Fadel Neto (\texttt{riscala.neto@pucpr.edu.br})\\ Victor Valerio Fadel (\texttt{victor.fadel@pucpr.edu.br})
+    Riscala Miguel Fadel Neto (\texttt{riscala.neto@pucpr.edu.br})\\
+    Victor Valerio Fadel (\texttt{victor.fadel@pucpr.edu.br})
 }
 
 \begin{document}
@@ -25,7 +26,7 @@
 
 Em propriedades rurais, o controle de pesagem do corpo pecuário é indispensável para a manutenção da qualidade de vida dos animais. Controlar o peso dos bovinos/equinos ou quaisquer outros animais infere avaliar o desempenho em relação ao ganho de peso dos mesmos, algo de extrema importância para a pecuária comercial, pois impacta diretamente em sua produtividade e na lucratividade.
 
-O controle de pesagem permite avaliar e ajustar a distribuição alimentar dos animais, garantindo que estes se desenvolvam de forma saudável. Em propriedades que trabalham com equinos, como haras e fazendas de criação, a pesagem auxilia na divisão correta da alimentação, suplementos e medicações, evitando sub ou sobrepeso, o que pode comprometer a saúde e a performance destes animais.
+O controle de pesagem permite avaliar e ajustar a distribuição alimentar dos animais, garantindo que estes se desenvolvam de forma saudável. Em propriedades que trabalham com equinos, como haras e fazendas de criação, a pesagem auxilia na divisão correta da alimentação, suplementos e medicações, evitando sub ou sobrepeso, o que pode comprometer a saúde e a performance desses animais.
 
 Além disso, o controle periódico do peso pode indicar animais que perderam peso de forma mais acentuada que o usual, fator este que pode alertar os criadores e cuidadores sobre possíveis doenças e evitar a piora do animal ou a possível disseminação da doença entre os demais animais, permitindo uma intervenção precoce e um manejo sanitário mais eficiente.
 
@@ -41,10 +42,10 @@ dificultando a identificação precoce de doenças e problemas nutricionais.
 A implementação de um sistema automatizado de pesagem torna-se essencial para garantir um manejo mais eficiente e melhorar a qualidade de vida dos animais.
 
 \section{Motivação}
-Apesar da importância do controle de peso dos animais, a pesagem na maioria das propriedades rurais de médio e pequeno porte ainda é realizada manualmente, exigindo mão de obra especializada para o registro de dados e o manejo dos animais. Esse método pode tornar a saúde dos animais vulnerável a possíveis erros no manejo e no controle das informações. Diante disso, um sistema automatizado de pesagem e registro de dados aumentaria a eficiência dos recursos humanos e financeiros da propriedade, além de evitar problemas como a falta de confiabilidade dos dados, decorrente de erros humanos, e a necessidade de um meio físico para o armazenamento das informações.
+Apesar da importância do controle de peso dos animais, a pesagem na maioria das propriedades rurais de médio e pequeno porte ainda é realizada manualmente, exigindo mão de obra especializada para o registro de dados e o manejo dos animais. Esse método pode tornar a saúde dos animais vulnerável a possíveis erros no manejo e no controle das informações. Diante disto, um sistema automatizado de pesagem e registro de dados aumentaria a eficiência dos recursos humanos e financeiros da propriedade, além de evitar problemas como a falta de confiabilidade dos dados, decorrente de erros humanos, e a necessidade de um meio físico para o armazenamento das informações.
 
 \section{Proposta}
-O controle de pesagem dos animais em propriedades rurais é essencial para garantir a saúde e o qualidade adequada dos bovinos, equinos e outros animais. A pesagem manual feita com mão de obra humana apresenta desafios, como a necessidade de mão de obra especializada, estresse nos animais e possíveis erros humanos. Assim, um sistema automatizado de pesagem se torna uma solução eficiente para melhorar o manejo e a produtividade de criadouros.
+O controle de pesagem dos animais em propriedades rurais é essencial para garantir a saúde e a qualidade adequada dos bovinos, equinos e outros animais. A pesagem manual feita com mão de obra humana apresenta desafios, como a necessidade de mão de obra especializada, estresse nos animais e possíveis erros humanos. Assim, um sistema automatizado de pesagem se torna uma solução eficiente para melhorar o manejo e a produtividade de criadouros.
 
 \subsection{Descrição do Sistema}
 O sistema proposto utilizará tecnologia NFC (\textit{Near Field Communication}) para a identificação individual dos animais e um mecanismo de controle para garantir que apenas um animal seja pesado por vez. Cada animal usará um colar equipado com uma tag NFC única, permitindo sua identificação automática no momento da pesagem.
@@ -70,23 +71,25 @@ As informações de cada pesagem, incluindo a tag NFC do animal e seu peso, ser�
 \end{itemize}
 
 \subsection{Suporte de navegação com Chat IA}
-A aplicação contará com um chat com inteligência artificial de linguagem natural, permitindo que os usuários interajam com o sistema de maneira intuitiva. Os usuários poderão acessar todas as informações do site por meio do chat, que interpretará a pergunta e os levará para a informação demandada sem a necessidade de um conhecimento de computadores prévio.
+A aplicação contará com um chat com inteligência artificial de linguagem natural, permitindo que os usuários interajam com o sistema de maneira intuitiva. Os usuários poderão acessar todas as informações do site por meio do chat, que interpretará a pergunta e analisará e disponibilizará a informação demandada sem a necessidade de um conhecimento técnico prévio.
 
 O sistema de pesagem automática proporcionará um monitoramento eficiente e automatizado da saúde e do desenvolvimento dos animais, reduzindo erros, otimizando a nutrição e garantindo um manejo mais inteligente e produtivo na pecuária.
 
 \section{Tecnologias envolvidas}
 O sistema contará, principalmente, com 3 componentes principais:
 \begin{itemize}
-    \item Célula de carga: trata-se de um dispositivo que medirá o peso, convertendo-os em sinais elétricos;
-    \item Sensor NFC (Near Field Communication): dispositivo esse que faz a troca de dados wireless entre dispositivos próximos
-    \item  tags NFC: elas armazenam os dados para identificação dos animais vinculados a elas, confirmando a presença deles ao se posicionarem sobre as células de carga
+    \item Célula de carga: Dispositivo que medirá o peso, convertendo-os em sinais elétricos;
+    \item Sensor NFC: Receptor/emissor de dados de baixo alcance em dispositivos de identificação;
+    \item Tag NFC: Dispositivo de armazenamento NFC para identificação dos animais, confirmando sua proximidade ao se posicionarem sobre as células de carga.
 \end{itemize}
-Além desses, o sistema também fará uso de ESP32, relê, protoboard, resistores e fios jumpers para a completa integração do sistema.
 
-Não só isso, será também necessário desenvolver o backend (bancos de dados) usando tecnologias como MySQL workbench, o acesso aos dados através do microframework Flask.
+Além desses, o sistema também fará uso do microcontrolador ESP32, atuadores mecânicos, buzzers e jumpers para a completa integração do sistema.
+
+Será também necessário desenvolver as camadas de acesso e persistência de dados, utilizando tecnologias SQL (MySQL) e o micro-framework web Python, Flask, além de implementar a coleta dos dados dos sensores através de uma rede IoT interconectada pelo protocolo MQTT.
+
 \section{Resultados esperados}
-\section{Cronograma}
 
+\section{Cronograma}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{cronograma.png}
