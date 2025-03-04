@@ -48,17 +48,17 @@ Apesar da importância do controle de peso dos animais, a pesagem na maioria das
 O controle de pesagem dos animais em propriedades rurais é essencial para garantir a saúde e a qualidade adequada dos bovinos, equinos e outros animais. A pesagem manual feita com mão de obra humana apresenta desafios, como a necessidade de mão de obra especializada, estresse nos animais e possíveis erros humanos. Assim, um sistema automatizado de pesagem se torna uma solução eficiente para melhorar o manejo e a produtividade de criadouros.
 
 \subsection{Descrição do Sistema}
-O sistema proposto utilizará tecnologia NFC (\textit{Near Field Communication}) para a identificação individual dos animais e um mecanismo de controle para garantir que apenas um animal seja pesado por vez. Cada animal usará um colar equipado com uma tag NFC única, permitindo sua identificação automática no momento da pesagem.
+O sistema proposto utilizará tecnologia NFC (\textit{Near Field Communication}) para a identificação individual dos animais e um mecanismo de controle para garantir que apenas um animal seja pesado por vez. Cada animal usará um colar ou brinco equipado com uma tag NFC única, permitindo seu cadastro e sua identificação automática no momento da pesagem.
 
 \subsection{Mecanismo de Pesagem}
-O sistema contará com balanças eletrônicas cercadas por dois portões automatizados, que se fecharão assim que um animal entrar na balança. Antes da medição do peso, serão realizadas as seguintes verificações:
+O sistema contará com balanças eletrônicas cercadas por dois portões automatizados, que se abrirão assim que a pesagem lograr êxito. Antes da medição do peso, serão realizadas as seguintes verificações:
 
 \begin{itemize}
     \item Verificação da tag NFC: O sistema identifica o animal e confirma a presença de apenas uma tag no momento da pesagem.
     \item Verificação do peso: O peso detectado é comparado com um peso limite para garantir que corresponda a o peso de um único animal.
 \end{itemize}
 
-Se ambas as verificações forem aprovadas, o peso do animal será medido e registrado.
+Se ambas as verificações forem aprovadas, o peso do animal será medido e registrado. Caso contrário, um alerta sonoro será ativado para que um operador verifique o problema e restaure o funcionamento correto da balança.
 
 \subsection{Armazenamento e Acesso aos Dados}
 As informações de cada pesagem, incluindo a tag NFC do animal e seu peso, serão armazenadas em um banco de dados MySQL, e o acesso dos dados será feito por meio de uma aplicação web desenvolvida em Flask, que permitirá que os usuários:
