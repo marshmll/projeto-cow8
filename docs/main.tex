@@ -45,14 +45,14 @@ O controle de pesagem dos animais em propriedades rurais é essencial para garan
 O sistema proposto utilizará tecnologia NFC (\textit{Near Field Communication}) para a identificação individual dos animais e um mecanismo de controle para garantir que apenas um animal seja pesado por vez. Cada animal usará um colar ou brinco equipado com uma tag NFC única, permitindo seu cadastro e sua identificação automática no momento da pesagem.
 
 \subsection{Mecanismo de Pesagem}
-O sistema contará com balanças eletrônicas cercadas por dois portões automatizados, que se abrirão assim que a pesagem for bem-sucedida. Antes da medição do peso, serão realizadas as seguintes verificações:
+O sistema contará com balanças eletrônicas cercadas contendo dois portões automatizados, que se abrirão assim que a pesagem for bem-sucedida. Antes da medição do peso, serão realizadas as seguintes verificações:
 
 \begin{itemize}
     \item Verificação da tag NFC: O sistema identifica o animal e confirma a presença de apenas uma tag no momento da pesagem.
-    \item Verificação do peso: O peso detectado é comparado a um peso limite para garantir que corresponda ao peso de um único animal.
+    \item Verificação do peso: O peso detectado é comparado a uma média para garantir a consistência do peso medido.
 \end{itemize}
 
-Caso ambas as verificações sejam aprovadas, o peso do animal será mensurado e registrado. Caso contrário, um alerta sonoro será emitido para que um operador verifique o problema e restabeleça o funcionamento adequado da balança.
+Caso ambas as verificações sejam aprovadas, o peso do animal será mensurado e registrado, e os portões da balança se abrirão para uma nova pesagem. Caso contrário, um alerta sonoro será emitido para que um operador verifique o problema e restabeleça o funcionamento adequado da balança.
 
 \subsection{Armazenamento e Acesso aos Dados}
 As informações de cada pesagem, incluindo o UUID da tag NFC do animal e seu peso, serão armazenadas em um banco de dados MySQL via integração dos sistemas embarcados e seus sensores com um broker MQTT. O acesso aos dados será feito por meio de uma aplicação web desenvolvida em Flask, que permitirá que os usuários:
@@ -70,16 +70,36 @@ A aplicação contará com um chat com inteligência artificial de linguagem nat
 O sistema de pesagem automática proporcionará um monitoramento eficiente e automatizado da saúde e do desenvolvimento dos animais, reduzindo erros, otimizando a nutrição e garantindo um manejo mais inteligente e produtivo na pecuária.
 
 \section{Tecnologias envolvidas}
-O sistema contará, principalmente, com três sensores principais:
+Para a construção do projeto físico, serão utilizados alguns componentes eletrônicos:
+
+\textit{Os itens marcados com * representam itens usados para prototipação, podendo ser substituídos por componentes mais robustos em produção.}
+
 \begin{itemize}
-    \item Célula de carga: Dispositivo que medirá o peso, convertendo-o em sinais elétricos;
-    \item Sensor NFC: Receptor/emissor de dados de baixo alcance em dispositivos de identificação;
-    \item Tag NFC: Dispositivo de armazenamento NFC para identificação dos animais, confirmando sua proximidade ao se posicionarem sobre as células de carga.
+    \item 1 Microcontrolador ESP32;
+    \item *1 Sensor NFC RFID-RC522;
+    \item *Tags NFC Mifare 13.96 MHz
+    \item *Células de carga strain gauge 50 kg;
+    \item 1 Buzzer passivo;
+    \item 4 Servo motores.
+    \item *1 Protoboard.
 \end{itemize}
 
-Além desses, o sistema também utilizará o microcontrolador ESP32, atuadores mecânicos, buzzers e jumpers para a completa integração do sistema.
+Além destes itens, serão utilizados componentes padrão para o funcionamento do projeto (resistores, jumpers, etc.).
 
-Também será necessário desenvolver as camadas de acesso e persistência de dados, utilizando tecnologias SQL (MySQL) e o microframework web Flask, desenvolvido em Python, além de implementar a coleta dos dados dos sensores por meio de uma rede IoT interconectada pelo protocolo MQTT.
+Para a construção do projeto web, serão utilizadas tecnologias como:
+\begin{itemize}
+    \item Flask;
+    \item SQLAlchemy;
+    \item *HiveMQ;
+    \item HTML, CSS, JS.
+\end{itemize}
+
+Para o armazenamento dos dados, serão utilizadas tecnologias como:
+\begin{itemize}
+    \item MySQL;
+    \item *Docker.
+\end{itemize}
+
 
 \section{Resultados esperados}
 Espera-se que o sistema de pesagem automatizada proporcione os seguintes resultados:
