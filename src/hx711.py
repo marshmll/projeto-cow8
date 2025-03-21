@@ -29,7 +29,7 @@ class HX711(DeviceNotReady):
         self._clk.init(mode=self._clk.OUT, value=0)
         self._channel = ch
         self._tare = 0
-        self._cal = HX711.CalibrationFactor
+        self._cal = HX711.CALIBRATION_FACTOR
         self.wait_ready()
         k, g = HX711.CHANNEL_AND_GAIN[ch]
         print("HX711 ready on channel {} with gain {}".format(k, g))
@@ -114,3 +114,4 @@ class HX711(DeviceNotReady):
         self._clk.value(0)
         self._clk.value(1)
         sleep_us(HX711.WAIT_SLEEP)
+

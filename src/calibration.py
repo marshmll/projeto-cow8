@@ -3,8 +3,8 @@ from hx711 import HX711
 from time import sleep
 
 # Initialize the HX711 with the appropriate pins
-dOut = Pin(18, Pin.IN)  # GPIO18 for data pin
-pdSck = Pin(19, Pin.OUT)  # GPIO19 for clock pin
+dOut = Pin(23, Pin.IN)  # GPIO18 for data pin
+pdSck = Pin(22, Pin.OUT)  # GPIO19 for clock pin
 
 hx = HX711(dOut, pdSck, HX711.SELA128)  # Use channel A with gain 128
 
@@ -35,12 +35,9 @@ print("Verificando calibração...")
 measured_weight = hx.weight(10)  # Take 10 samples to calculate the weight
 print("Peso medido: {:.2f} g".format(measured_weight))
 
-## TEMP!!!
-hx.cal_factor = hx.CALIBRATION_FACTOR
-
 # Continuous weight measurement
 while True:
-    weight = hx.weight(10)  # Take 10 samples to calculate the weight
+    weight = hx.weight(50)  # Take 10 samples to calculate the weight
     print("Peso: {:.2f} g".format(weight))
     sleep(1)  # Wait for 1 second before the next reading
 
