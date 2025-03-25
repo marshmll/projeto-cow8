@@ -20,7 +20,7 @@ class HX711(DeviceNotReady):
         2: ("B", 32),
         3: ("A", 64),
     }
-    CALIBRATION_FACTOR = 1104
+    CALIBRATION_FACTOR = 260
 
     def __init__(self, dOut, pdSck, ch=SELA128):
         self._data = dOut
@@ -97,8 +97,21 @@ class HX711(DeviceNotReady):
         return self._tare
 
     def weight(self, n):
-        g = (self.mean(n) - self._tare) / self._cal
+        g = (self.stable_value(n) - self._tare) / self._cal
         return g
+    
+    def stable_value(self, reads=10, delay_us=500):
+        values = []
+        for _ in range(reads):
+            values.append(self.get_raw())
+            sleep_us(delay_us)
+        return self._stabilizer(values)
+    
+    def _stabilizer(self, values, deviation=10):
+        weights = []
+        for prev in values:
+            weights.append(sum([1 for current in values if abs(prev - current) / (prev / 100) <= deviation]))
+        return sorted(zip(values, weights), key=lambda x: x[1]).pop()[0]
 
     def cal_factor(self, f=None):
         if f is not None:
@@ -114,4 +127,3 @@ class HX711(DeviceNotReady):
         self._clk.value(0)
         self._clk.value(1)
         sleep_us(HX711.WAIT_SLEEP)
-
