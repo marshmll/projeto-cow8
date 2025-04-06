@@ -1,0 +1,116 @@
+@import url("./reset.css");
+@import url("./variables.css");
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    background-color: var(--background-dark);
+    font-family: "Courier Prime", monospace;
+}
+
+.header {
+    width: 100%;
+    background-color: var(--background-container-dark);
+    padding: .5rem 1rem;
+    box-shadow: var(--box-shadow-dark);
+    border: var(--border-dark);
+    border-radius: var(--container-radius);
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+}
+
+.header__button {
+    background-color: var(--button-color-primary);
+    color: white;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    background-image: url("../images/icons/icon_white.svg");
+    background-position: center;
+    background-size: 70%;
+    background-repeat: no-repeat;
+}
+
+.header__button:hover {
+    transform: var(--button-transform);
+    transition: var(--button-transition);
+}
+
+.header__link {
+    background-color: transparent;
+    color: white;
+    padding: .5rem 1rem;
+    border-radius: var(--button-radius);
+}
+
+.header__link--active {
+    background-color: var(--button-color-primary);
+}
+
+.header__link:hover {
+    transform: var(--button-transform);
+    transition: var(--button-transition);
+}
+
+.article-title {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: .8rem;
+}
+
+.article-title__title {
+    color: var(--article-title-color-dark);
+    font-size: 1.2rem;
+    font-family: var(--title-font-family);
+    font-weight: var(--title-font-weight);
+}
+
+.article-title__more {
+    background-color: var(--background-container-dark);
+    box-shadow: var(--box-shadow-dark);
+    border: var(--border-dark);
+    border-radius: var(--container-radius);
+    padding: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.article-title__span {
+    color: white;
+    margin-right: .6rem;
+}
+
+.article-title__button {
+    background-color: var(--button-color-primary);
+    width: 1.5rem;
+    height: 1.5rem;
+    border: none;
+    border-radius: var(--button-radius);
+    cursor: pointer;
+    background-image: url("../images/icons/arrow_foward.svg");
+    background-position: center;
+    background-size: 80%;
+    background-repeat: no-repeat;
+}
+
+.article-title__button:hover {
+    transform: var(--button-transform);
+    transition: var(--button-transition);
+}
+
+.article {
+    background-color: var(--background-container-dark);
+    padding: 1rem;
+    box-shadow: var(--box-shadow-dark);
+    border: var(--border-dark);
+    border-radius: var(--container-radius);
+    margin-bottom: 1.4rem;
+}
