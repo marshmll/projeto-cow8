@@ -1,18 +1,24 @@
 @import url("./reset.css");
 @import url("./variables.css");
+@import url("./switch.css");
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 body {
-    background-color: var(--background-dark);
+    background-color: var(--background);
     font-family: "Courier Prime", monospace;
+}
+
+canvas {
+    width: max-content !important;
+    height: auto !important;
 }
 
 .header {
     width: 100%;
-    background-color: var(--background-container-dark);
+    background-color: var(--background-container);
     padding: .5rem 1rem;
-    box-shadow: var(--box-shadow-dark);
-    border: var(--border-dark);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
     border-radius: var(--container-radius);
     display: flex;
     align-items: center;
@@ -65,16 +71,16 @@ body {
 }
 
 .article-title__title {
-    color: var(--article-title-color-dark);
+    color: var(--article-title-color);
     font-size: 1.2rem;
     font-family: var(--title-font-family);
     font-weight: var(--title-font-weight);
 }
 
 .article-title__more {
-    background-color: var(--background-container-dark);
-    box-shadow: var(--box-shadow-dark);
-    border: var(--border-dark);
+    background-color: var(--background-container);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
     border-radius: var(--container-radius);
     padding: .5rem;
     display: flex;
@@ -107,10 +113,10 @@ body {
 }
 
 .article {
-    background-color: var(--background-container-dark);
+    background-color: var(--background-container);
     padding: 1rem;
-    box-shadow: var(--box-shadow-dark);
-    border: var(--border-dark);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
     border-radius: var(--container-radius);
     margin-bottom: 1.4rem;
 }
