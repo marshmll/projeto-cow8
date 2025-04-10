@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/common.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/pages/index.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
@@ -16,7 +17,7 @@
             <button class="header__button" onclick=""></button>
             <a href="" class="header__link header__link--active">Geral</a>
             <a href="" class="header__link">Chatbot AI</a>
-            <a href="" class="header__link">Reports</a>
+            <a href="/reports" class="header__link">Reports</a>
             <a href="" class="header__link">Services</a>
             <a href="" class="header__link">Settings</a>
             <!-- <div class="switch-div">
