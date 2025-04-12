@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/common.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/pages/index.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
@@ -48,8 +47,56 @@
         <article class="article">
         </article>
     </main>
-    <aside class="aside"></aside>
+    <aside class="aside">
+        <div class="user-opt">
+            <div class="input-with-icon">
+                <div class="input-with-icon__icon"></div>
+                <input class="input-with-icon__input user-opt__search" type="text" name="search" id="search"
+                    placeholder="Pesquisar...">
+            </div>
+            <button class="user-opt__button user-opt__alerts"></button>
+            <button class="user-opt__button user-opt__settings"></button>
+            <button class="user-opt__button user-opt__user">
+                <div class="user-opt__user-img"></div>
+                <div class="user-opt__user-icon"></div>
+            </button>
+        </div>
+        <div class="article-title">
+            <h2 class="article-title__title">Resumo</h2>
+        </div>
+        <article class="article">
+            <div class="summary">
+                <div class="summary__item">
+                    <div class="summary__title">
+                        <div class="summary__icon summary__icon--total"></div>
+                        <span class="summary__subject">Animais Pesados</span>
+                    </div>
+                    <span class="summary__value">32222 animais</span>
+                </div>
+                <div class="summary__item">
+                    <div class="summary__title">
+                        <div class="summary__icon summary__icon--sick"></div>
+                        <span class="summary__subject">Animais Doentes</span>
+                    </div>
+                    <span class="summary__value">1003 animais</span>
+                </div>
+                <div class="summary__item">
+                    <div class="summary__title">
+                        <div class="summary__icon summary__icon--health"></div>
+                        <span class="summary__subject">Condição Geral de Saúde</span>
+                    </div>
+                    <span class="summary__value">Boa</span>
+                </div>
+            </div>
+        </article>
+        <div class="article-title">
+            <h2 class="article-title__title">Análise Periódica</h2>
+        </div>
+        <article class="article">
+        </article>
+    </aside>
 </body>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module" src="{{ url_for('static', filename='assets/scripts/pages/index.js') }}"></script>
 
