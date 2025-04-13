@@ -1,0 +1,36 @@
+services:
+  web:
+    container_name: webserver
+    build: 
+      context: .
+      dockerfile: ./Docker/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql/mysql-server:latest
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=cow8_db
+      - MYSQL_ROOT_PASSWORD=root
+      - LANG=C.UTF-8
+      - TZ=America/Sao_Paulo
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-volume:/var/lib/mysql
+      - ./Database/scripts:/docker-entrypoint-initdb.d:z
+volumes:
+  mysql-volume:
+    driver: local
+
+    
+    
