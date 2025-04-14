@@ -1,14 +1,4 @@
 services:
-  web:
-    container_name: webserver
-    build: 
-      context: .
-      dockerfile: ./Docker/Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
   db:
     image: mysql/mysql-server:latest
     container_name: mysql
@@ -31,6 +21,3 @@ services:
 volumes:
   mysql-volume:
     driver: local
-
-    
-    

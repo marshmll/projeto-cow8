@@ -16,6 +16,9 @@ class DadosAnimal(Base):
         back_populates="dados_animal", cascade="all, delete-orphan"
     )
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
     def __repr__(self):
         return f"""DadosAnimal(
             id={self.id!r},
@@ -27,6 +30,7 @@ class Animal(Base):
     __tablename__ = 'Animal'
 
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    uid : Mapped[str] = mapped_column(Text)
     sexo : Mapped[str] = mapped_column(CHAR(1), nullable=False)
     id_dados_animal : Mapped[int] = mapped_column(ForeignKey("DadosAnimal.id"))
 
@@ -34,9 +38,13 @@ class Animal(Base):
         back_populates="animais",
     )
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
     def __repr__(self):
         return f"""Animal(
             id={self.id!r},
+            uid={self.uid!r},
             sexo={self.sexo!r},
             id_dados_animal={self.id_dados_animal!r}
         )"""
@@ -48,6 +56,9 @@ class ControlePesagem(Base):
     datahora_pesagem : Mapped[datetime] = mapped_column(DateTime, default="CURRENT_DATETIME()", nullable=False, primary_key=True)
     medicao_peso : Mapped[float] = mapped_column(Numeric(7, 2), nullable=False)
     observacoes : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
     def __repr__(self):
         return f"""ControlePesagem(

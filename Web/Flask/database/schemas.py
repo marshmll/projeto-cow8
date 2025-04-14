@@ -15,6 +15,7 @@ class DadosAnimal(DadosAnimalBase):
 
 
 class AnimalBase(BaseModel):
+    uid: str
     sexo: str
     id_dados_animal: int
 
