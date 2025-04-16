@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/common.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    {% block head %} {% endblock %}
+</head>
+
+<body>
+    <main class="main">
+        <header class="header">
+            <button class="header__button" onclick=""></button>
+            {% for link in data["links"] %}
+            <a href="{{ link.link }}" class="header__link {% if link.active %}header__link--active{% endif %}">{{
+                link.name }}</a>
+            {% endfor %}
+        </header>
+        {% block main %} {% endblock %}
+    </main>
+    <aside class="aside">
+        <div class="user-opt">
+            <div class="input-with-icon">
+                <div class="input-with-icon__icon"></div>
+                <input class="input-with-icon__input user-opt__search" type="text" name="search" id="search"
+                    placeholder="Pesquisar...">
+            </div>
+            <button class="user-opt__button user-opt__alerts"></button>
+            <button class="user-opt__button user-opt__settings"></button>
+            <div class="dropdown">
+                <button class="user-opt__button user-opt__user dropbtn" title="{{ data['user'].username }}">
+                    <div class="user-opt__user-img"></div>
+                    <span class="user-opt__user-name">{{ data["user"].username }}</span>
+                    <div class="user-opt__user-icon"></div>
+                </button>
+                <div class="dropdown-content">
+                    <a href="/logout">Sair</a>
+                </div>
+            </div>
+        </div>
+        {% block aside %} {% endblock %}
+    </aside>
+</body>
+{% block scripts %} {% endblock %}
+
+</html>

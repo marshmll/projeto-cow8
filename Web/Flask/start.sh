@@ -4,19 +4,21 @@ if [[ ! -z $1 ]]
 then
     if [ $1 == "all" ]
     then
-        echo "Starting Docker as a Daemon. Stop it using \"stop.sh\"."
-        docker compose up --detach
+        echo "Starting Docker as a Daemon. Stop it using \"stop.sh\"." &&
+        docker compose up --detach &&
         echo "Starting Flask"
-        python -m flask --app app.py run --debug
+        source .venv/bin/activate &&
+        python -m flask --app . run --debug
     
     elif [ $1 == "docker" ]
     then
-        echo "Building and Starting Docker"
+        echo "Building and Starting Docker" &&
         docker compose up --build --remove-orphans
     elif [ $1 == "flask" ]
     then
-        echo "Starting Flask"
-        python -m flask --app app.py run --debug
+        echo "Starting Flask" &&
+        source .venv/bin/activate &&
+        python -m flask --app . run --debug
     fi
 else
     echo "Usage: $0 <option>"
