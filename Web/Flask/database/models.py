@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
-from sqlalchemy import String, Text, Integer, Numeric, DateTime, ForeignKey, CHAR
-from datetime import date, datetime
+from sqlalchemy import String, Text, Integer, Numeric, DateTime, ForeignKey, CHAR, UniqueConstraint, func
+from datetime import date, datetime, timezone
 from typing import Optional, Set
 from flask_login import UserMixin
 
@@ -10,13 +10,16 @@ class Usuario(Base, UserMixin):
     __tablename__ = 'Usuario'
 
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
-    username : Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
+    username : Mapped[str] = mapped_column(String(120), nullable=False)
     nome_completo : Mapped[str] = mapped_column(Text, nullable=False)
-    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now())
-    status : Mapped[str] = mapped_column(String(50), nullable=False, default="ATIVO")
-    privilegios : Mapped[str] = mapped_column(String(50), nullable=False, default="USER")
+    email : Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    status : Mapped[str] = mapped_column(String(50), nullable=False, default="Ativo")
+    privilegios : Mapped[str] = mapped_column(String(50), nullable=False, default="Usuário")
     key : Mapped[str] = mapped_column(Text, nullable=False)
     salt : Mapped[str] = mapped_column(Text, nullable=False)
+
+    __table_args__ = (UniqueConstraint("username", "email", name="user_identity"),)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

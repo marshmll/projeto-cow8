@@ -10,17 +10,14 @@
 </head>
 
 <body>
-    <main class="main">
-        <header class="header">
+    <header class="header">
+        <div class="header__links">
             <button class="header__button" onclick=""></button>
-            {% for link in data["links"] %}
-            <a href="{{ link.link }}" class="header__link {% if link.active %}header__link--active{% endif %}">{{
-                link.name }}</a>
+            {% for key, value in data['links'].items() %}
+            <a href="{{ value.link }}" class="header__link {% if value.active %}header__link--active{% endif %}">{{ key
+                }}</a>
             {% endfor %}
-        </header>
-        {% block main %} {% endblock %}
-    </main>
-    <aside class="aside">
+        </div>
         <div class="user-opt">
             <div class="input-with-icon">
                 <div class="input-with-icon__icon"></div>
@@ -40,8 +37,15 @@
                 </div>
             </div>
         </div>
-        {% block aside %} {% endblock %}
-    </aside>
+    </header>
+    <div class="principal">
+        <main class="main">
+            {% block main %} {% endblock %}
+        </main>
+        <aside class="aside">
+            {% block aside %} {% endblock %}
+        </aside>
+    </div>
 </body>
 {% block scripts %} {% endblock %}
 

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/pages/restrict/users_list.css') }}">
+<title>Usuários | MVP Cow8</title>
+{% endblock %}
+
+{% block main %}
+<div class="article-title">
+    <h2 class="article-title__title">Usuários</h2>
+</div>
+<article class="article">
+    <ul class="users">
+        <span class="loader"></span>
+    </ul>
+</article>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='assets/scripts/pages/restrict/users_list.js') }}"></script>
+{% endblock %}

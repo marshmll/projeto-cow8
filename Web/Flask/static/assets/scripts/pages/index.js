@@ -189,14 +189,14 @@ function setSummaryData(data) {
     document.querySelector(".summary").innerHTML = html;
 }
 
-fetch("means").then(res => res.json()).then(data => {
+fetch("/api/means").then(res => res.json()).then(data => {
     setChartMeansData(data);
 });
 
-fetch("health_metrics").then(res => res.json()).then(data => {
+fetch("/api/health_metrics").then(res => res.json()).then(data => {
     setChartHealthMetricsData(data);
 });
 
-fetch("health_status").then(res => res.json()).then(data => {
+fetch("/api/health_status").then(res => res.json()).then(data => {
     setSummaryData(data);
 });

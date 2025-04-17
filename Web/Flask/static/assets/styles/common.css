@@ -6,19 +6,32 @@
 body {
     background-color: var(--background);
     font-family: "Courier Prime", monospace;
+}
+
+.principal {
     display: flex;
     align-items: flex-start;
     flex-direction: row;
     flex-wrap: nowrap;
 }
 
-canvas {
-    width: min-content !important;
+/* canvas {
+    width: 100%!important;
     height: auto !important;
+} */
+
+.main {
+    padding: 1rem;
+    width: 60%;
+}
+
+.aside {
+    padding: 1rem;
+    width: 40%;
 }
 
 .header {
-    width: 100%;
+    width: 97%;
     background-color: var(--background-container);
     padding: .5rem 1rem;
     box-shadow: var(--box-shadow);
@@ -27,8 +40,10 @@ canvas {
     display: flex;
     align-items: center;
     flex-direction: row;
+    justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.4rem;
+    margin: 1rem auto;
+    flex-wrap: wrap;
 }
 
 .header__button {
@@ -48,6 +63,13 @@ canvas {
 .header__button:hover {
     transform: var(--button-transform);
     transition: var(--button-transition);
+}
+
+.header__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .header__link {
@@ -132,7 +154,6 @@ canvas {
 
 .input-with-icon {
     position: relative;
-    ;
 }
 
 .input-with-icon__icon {
@@ -154,17 +175,11 @@ canvas {
 }
 
 .user-opt {
-    width: 100%;
-    background-color: var(--background-container);
-    padding: .5rem 1rem;
-    box-shadow: var(--box-shadow);
-    border: var(--border);
-    border-radius: var(--container-radius);
     display: flex;
     align-items: center;
     flex-direction: row;
     gap: 1rem;
-    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
 }
 
 .user-opt__search {
@@ -179,8 +194,8 @@ canvas {
     background-color: var(--background-item);
     border: var(--border);
     border-radius: var(--container-radius);
-    width: 2rem;
-    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
     background-size: 80%;
     background-position: center;
     background-repeat: no-repeat;
@@ -245,6 +260,7 @@ canvas {
     border-radius: var(--container-radius);
     color: #0b54a8;
     margin-bottom: 1rem;
+    font-size: .9rem;
 }
 
 .notification.is-danger {
@@ -292,4 +308,75 @@ canvas {
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {
     background: var(--button-background-primary);
+}
+
+.loader {
+    min-width: 48px;
+    min-height: 48px;
+    margin: 0 auto;
+    border-radius: 50%;
+    position: relative;
+    animation: rotate 1s linear infinite
+}
+
+.loader::before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0px;
+    border-radius: 50%;
+    border: 5px solid #FFF;
+    animation: prixClipFix 2s linear infinite;
+}
+
+@keyframes rotate {
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes prixClipFix {
+    0% {
+        clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0)
+    }
+
+    25% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0)
+    }
+
+    50% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%)
+    }
+
+    75% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%)
+    }
+
+    100% {
+        clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0)
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .principal {
+        align-items: flex-start;
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .main {
+        padding: 1rem;
+        width: 100%;
+    }
+
+    .aside {
+        padding: 1rem;
+        width: 100%;
+    }
 }

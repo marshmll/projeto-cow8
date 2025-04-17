@@ -25,6 +25,10 @@ def login_post():
     if not user:
         flash('Usuário inexistente.')
         return redirect(url_for('auth.login'))
+    
+    if user.status == "Banido":
+        flash('Este usuário foi banido por tempo indeterminado.')
+        return redirect(url_for('auth.login'))
 
     salt = b64decode(user.salt)
     key = bcrypt.kdf(password=bytes(password, 'utf-8'), salt=salt, desired_key_bytes=32, rounds=200)

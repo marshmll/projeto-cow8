@@ -3,16 +3,12 @@ services:
     image: mysql/mysql-server:latest
     container_name: mysql
     restart: always
+    build: ./Docker/mysql
     environment:
       - MYSQL_DATABASE=cow8_db
       - MYSQL_ROOT_PASSWORD=root
       - LANG=C.UTF-8
       - TZ=America/Sao_Paulo
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
     ports:
       - "3307:3306"
     volumes:

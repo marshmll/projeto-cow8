@@ -5,12 +5,13 @@ CREATE TABLE IF NOT EXISTS Usuario (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(120) NOT NULL,
     nome_completo TEXT NOT NULL,
-    datahora_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL DEFAULT 'ATIVO',
-    privilegios VARCHAR(50) NOT NULL DEFAULT 'USER',
+    email VARCHAR(200),
+    datahora_registro DATETIME NOT NULL DEFAULT NOW(),
+    status VARCHAR(50) NOT NULL DEFAULT 'Ativo',
+    privilegios VARCHAR(50) NOT NULL DEFAULT 'Usuário',
     `key` TEXT NOT NULL,
     salt TEXT NOT NULL,
-    UNIQUE(username)
+    UNIQUE(username, email)
 );
 
 CREATE TABLE IF NOT EXISTS DadosAnimal (

@@ -12,7 +12,7 @@
     min-width: 20rem;
     width: 35dvw;
     height: 80dvh;
-    padding: 2rem;
+    padding: 3rem 4rem;
     position: relative;
     border-radius: var(--container-radius);
     box-shadow: var(--box-shadow);
@@ -29,9 +29,14 @@
 
 .login__form {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     flex-direction: column;
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
     margin-top: 5rem;
 }
 
@@ -40,7 +45,7 @@
     align-items: flex-start;
     justify-content: center;
     flex-direction: column;
-    width: 80%;
+    width: 100%;
     margin-bottom: 1rem;
 
     input {
@@ -72,7 +77,9 @@
     cursor: pointer;
     transition: all 200ms ease-in-out;
     position: absolute;
-    bottom: 0;
+    top: 140%;
+    left: 50%;
+    transform: translateX(-50%);
     margin-bottom: 2rem;
 }
 
