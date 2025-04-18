@@ -1,52 +1,118 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/common.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
     {% block head %} {% endblock %}
-</head>
+    <style>
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: #1f2937; /* bg-gray-800 */
+        min-width: 120px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        border-radius: 0.5rem; /* rounded-lg */
+        overflow: hidden;
+      }
+      .dropdown-content a {
+        color: white;
+        padding: 0.75rem 1rem; /* px-4 py-3 */
+        text-decoration: none;
+        display: block;
+        font-size: 0.875rem; /* text-sm */
+        background-color: #1f2937; /* bg-gray-800 */
+      }
+      .dropdown-content a:hover {
+        background-color: #374151; /* hover:bg-gray-700 */
+      }
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .dropdown:hover .dropbtn {
+        background-color: #2563eb; /* bg-blue-600 */
+      }
+    </style>
+  </head>
 
-<body>
-    <header class="header">
-        <div class="header__links">
-            <button class="header__button" onclick=""></button>
-            {% for key, value in data['links'].items() %}
-            <a href="{{ value.link }}" class="header__link {% if value.active %}header__link--active{% endif %}">{{ key
-                }}</a>
-            {% endfor %}
+  <body class="bg-gray-900 min-h-screen flex flex-col">
+    <header
+      class="w-[97%] bg-gray-800 p-2 shadow-md text-white border border-gray-700 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 mx-auto my-4"
+    >
+      <div class="flex items-center justify-center gap-4">
+        <a href="/"
+          class="bg-blue-600 text-white w-10 h-10 border-none rounded-lg cursor-pointer bg-[url('/static/assets/images/icons/icon_white.svg')] bg-center bg-no-repeat bg-[length:70%] hover:scale-105 transition-transform duration-200"
+        ></a>
+        {% for key, value in data['links'].items() %}
+        <a
+          href="{{ value.link }}"
+          class="px-4 py-2 rounded-lg {% if value.active %}bg-blue-600{% else %}bg-transparent{% endif %} text-white hover:scale-105 transition-transform duration-200"
+        >
+          {{ key }}
+        </a>
+        {% endfor %}
+      </div>
+      <div class="flex items-center gap-4 flex-wrap justify-center">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 flex items-center pl-2">
+            <div
+              class="w-6 h-6 bg-[url('/static/assets/images/icons/search_white.svg')] bg-center bg-no-repeat bg-[length:80%]"
+            ></div>
+          </div>
+          <input
+            class="pl-8 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white w-full"
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Pesquisar..."
+          />
         </div>
-        <div class="user-opt">
-            <div class="input-with-icon">
-                <div class="input-with-icon__icon"></div>
-                <input class="input-with-icon__input user-opt__search" type="text" name="search" id="search"
-                    placeholder="Pesquisar...">
+        <button
+          class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 bg-[url('/static/assets/images/icons/notifications_white.svg')] bg-center bg-no-repeat bg-[length:80%] cursor-pointer"
+        ></button>
+        <button
+          class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 bg-[url('/static/assets/images/icons/settings_white.svg')] bg-center bg-no-repeat bg-[length:80%] cursor-pointer"
+        ></button>
+        <div class="relative inline-block">
+          <div class="dropdown">
+            <button
+              class="dropbtn bg-gray-700 border border-gray-600 rounded-lg flex items-center h-9 px-2 cursor-pointer"
+              title="{{ data['user'].username }}"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-[url('/static/assets/images/default.jpg')] bg-cover bg-center mr-2"
+              ></div>
+              <span
+                class="text-white max-w-[5rem] overflow-hidden text-ellipsis"
+                >{{ data["user"].username }}</span
+              >
+              <div
+                class="w-4 h-4 bg-[url('/static/assets/images/icons/arrow_down_white.svg')] bg-contain bg-center bg-no-repeat ml-2"
+              ></div>
+            </button>
+            <div class="dropdown-content">
+              <a href="/logout" class="hover:bg-gray-700">Sair</a>
             </div>
-            <button class="user-opt__button user-opt__alerts"></button>
-            <button class="user-opt__button user-opt__settings"></button>
-            <div class="dropdown">
-                <button class="user-opt__button user-opt__user dropbtn" title="{{ data['user'].username }}">
-                    <div class="user-opt__user-img"></div>
-                    <span class="user-opt__user-name">{{ data["user"].username }}</span>
-                    <div class="user-opt__user-icon"></div>
-                </button>
-                <div class="dropdown-content">
-                    <a href="/logout">Sair</a>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </header>
-    <div class="principal">
-        <main class="main">
-            {% block main %} {% endblock %}
-        </main>
-        <aside class="aside">
-            {% block aside %} {% endblock %}
-        </aside>
-    </div>
-</body>
-{% block scripts %} {% endblock %}
 
+    <div class="flex-1 flex flex-col lg:flex-row">
+      <main class="p-4 w-full lg:w-3/5 order-2 lg:order-1">
+        {% block main %} {% endblock %}
+      </main>
+      <aside class="p-4 w-full lg:w-2/5 order-1 lg:order-2">
+        {% block aside %} {% endblock %}
+      </aside>
+    </div>
+  </body>
+  {% block scripts %} {% endblock %}
 </html>

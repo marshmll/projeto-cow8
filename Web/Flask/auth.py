@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from database.database import SessionLocal
 from database.models import Usuario
+from sqlalchemy import or_
 from base64 import b64decode
 import bcrypt
 
@@ -16,11 +17,11 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
-    username = request.form.get('user')
+    username_or_email = request.form.get('user')
     password = request.form.get('pass')
     remember = True if request.form.get('remember') else False
 
-    user = SessionLocal.query(Usuario).filter_by(username=username).first()
+    user = SessionLocal.query(Usuario).filter(or_(Usuario.username == username_or_email, Usuario.email == username_or_email)).first()
 
     if not user:
         flash('Usuário inexistente.')

@@ -1,21 +1,41 @@
-{% extends "base.html" %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/pages/restrict/users_list.css') }}">
+{% extends "base.html" %} {% block head %}
 <title>Usuários | MVP Cow8</title>
-{% endblock %}
-
-{% block main %}
-<div class="article-title">
-    <h2 class="article-title__title">Usuários</h2>
+{% endblock %} {% block main %}
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-gray-200 text-xl font-montserrat font-bold">Usuários</h2>
 </div>
-<article class="article">
-    <ul class="users">
-        <span class="loader"></span>
-    </ul>
+<article
+  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+  <ul class="flex flex-col gap-3 users-list">
+    <span class="loader"></span>
+  </ul>
 </article>
+{% endblock %} {% block scripts %}
+<script
+  type="module"
+  src="/static/assets/scripts/pages/restrict/users_list.js"
+></script>
 {% endblock %}
 
-{% block scripts %}
-<script type="module" src="{{ url_for('static', filename='assets/scripts/pages/restrict/users_list.js') }}"></script>
-{% endblock %}
+<style>
+  .loader {
+    min-width: 48px;
+    min-height: 48px;
+    margin: 0 auto;
+    border-radius: 50%;
+    position: relative;
+    animation: rotate 1s linear infinite;
+    border: 5px solid #fff;
+    border-color: #fff transparent #fff transparent;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>

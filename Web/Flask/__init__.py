@@ -49,20 +49,54 @@ def create_app():
         SessionLocal.commit()
         SessionLocal.flush()
 
-    # create regular user
-    if not SessionLocal.query(Usuario).filter_by(username='renan').first():
+    # create regular users
+    users = [
+        {
+            'username': 'renan',
+            'name': 'Renan da Silva Oliveira Andrade',
+            'email': 'renan.silva3@pucpr.edu.br'
+        },
+        {
+            'username': 'ricardo',
+            'name': 'Ricardo Lucas Kucek',
+            'email': 'ricardo.kucek@pucpr.edu.br'
+        },
+        {
+            'username': 'pedro',
+            'name': 'Pedro Senes Velloso Ribeiro',
+            'email': 'pedro.senes@pucpr.edu.br'
+        },
+        {
+            'username': 'neto',
+            'name': 'Riscala Miguel Fadel Neto',
+            'email': 'riscala.neto@pucpr.edu.br'
+        },
+        {
+            'username': 'victor',
+            'name': 'Victor Valerio Fadel',
+            'email': 'victor.fadel@pucpr.edu.br'
+        },
+    ]
+
+    for user in users:
+        if not SessionLocal.query(Usuario).filter_by(username=user['username']).first():
+            
+            senha = b"Usuario@2025" # temp
+
+            salt = bcrypt.gensalt(rounds=30, prefix=b'2a')
+            salt_str = b64encode(salt).decode('utf-8')
+            key = bcrypt.kdf(password=senha, salt=salt, desired_key_bytes=32, rounds=200)
+            key_str = b64encode(key).decode(encoding='utf-8')
+
+            usuario = Usuario(username=user['username'], nome_completo=user['name'], email=user['email'], privilegios='Usuário', salt=salt_str, key=key_str)
+
+            SessionLocal.add(usuario)
+            SessionLocal.commit()
         
-        senha = b"Usuario@2025" # temp
+    SessionLocal.flush()
 
-        salt = bcrypt.gensalt(rounds=30, prefix=b'2a')
-        salt_str = b64encode(salt).decode('utf-8')
-        key = bcrypt.kdf(password=senha, salt=salt, desired_key_bytes=32, rounds=200)
-        key_str = b64encode(key).decode(encoding='utf-8')
-
-        usuario = Usuario(username="renan", nome_completo='Renan da Silva Oliveira Andrade', email="renandasilvaoliveiraandrade@gmail.com", privilegios='Usuário', salt=salt_str, key=key_str)
-
-        SessionLocal.add(usuario)
-        SessionLocal.commit()
-        SessionLocal.flush()
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        SessionLocal.remove()
 
     return app

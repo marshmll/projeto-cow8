@@ -1,50 +1,59 @@
-{% extends "base.html" %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/pages/index.css') }}">
+{% extends "base.html" %} {% block head %}
 <title>Dashboard | MVP Cow8</title>
-{% endblock %}
-
-{% block main %}
-<div class="article-title">
-    <h2 class="article-title__title">Estatísticas</h2>
-    <div class="article-title__more">
-        <span class="article-title__span">Ver mais</span>
-        <button class="article-title__button"></button>
-    </div>
+{% endblock %} {% block main %}
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-gray-200 text-xl font-montserrat font-bold">Estatísticas</h2>
+  <div
+    class="bg-gray-800 shadow-md border border-gray-700 rounded-lg p-2 flex items-center w-max"
+  >
+    <span class="text-white text-sm mr-3">Ver mais</span>
+    <button
+      class="bg-blue-700 min-w-6 min-h-6 block p-2 border-none rounded-lg cursor-pointer bg-[url('static/assets/images/icons/arrow_foward_white.svg')] bg-center bg-[length:80%] bg-no-repeat hover:scale-105 transition-transform duration-200"
+    ></button>
+  </div>
 </div>
-<article class="article">
-    <canvas id="means"></canvas>
+<article
+  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+  <canvas id="means"></canvas>
 </article>
-<div class="article-title">
-    <h2 class="article-title__title">Outros</h2>
-    <div class="article-title__more">
-        <span class="article-title__span">Ver mais</span>
-        <button class="article-title__button"></button>
-    </div>
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-gray-200 text-xl font-montserrat font-bold">Outros</h2>
+  <div
+    class="bg-gray-800 shadow-md border border-gray-700 rounded-lg p-2 flex items-center w-max"
+  >
+    <span class="text-white text-sm mr-3">Ver mais</span>
+    <button
+      class="bg-blue-700 min-w-6 min-h-6 block p-2 border-none rounded-lg cursor-pointer bg-[url('static/assets/images/icons/arrow_foward_white.svg')] bg-center bg-[length:80%] bg-no-repeat hover:scale-105 transition-transform duration-200"
+    ></button>
+  </div>
 </div>
-<article class="article">
-    <canvas id="risk"></canvas>
+<article
+  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+  <canvas id="risk"></canvas>
 </article>
-{% endblock %}
-
-{% block aside %}
-<div class="article-title">
-    <h2 class="article-title__title">Resumo Mensal</h2>
+{% endblock %} {% block aside %}
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-gray-200 text-xl font-montserrat font-bold">Resumo Mensal</h2>
 </div>
-<article class="article">
-    <div class="summary">
-        <span class="loader"></span>
-    </div>
+<article
+  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+  <div
+    class="summary grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+  ></div>
 </article>
-<div class="article-title">
-    <h2 class="article-title__title">Análise Periódica</h2>
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-gray-200 text-xl font-montserrat font-bold">
+    Análise Periódica
+  </h2>
 </div>
-<article class="article"></article>
-{% endblock %}
-
-{% block scripts %}
+<article
+  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+></article>
+{% endblock %} {% block scripts %}
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script type="module" src="{{ url_for('static', filename='assets/scripts/pages/index.js') }}"></script>
+<script type="module" src="/static/assets/scripts/pages/index.js"></script>
 {% endblock %}
