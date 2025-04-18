@@ -74,3 +74,5 @@ def list_users():
     data['links']['Usuários']['active'] = True
 
     return render_template('users_list.html', data=data)
+
+

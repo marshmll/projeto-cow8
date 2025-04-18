@@ -1,4 +1,19 @@
 services:
+  web:
+    container_name: webserver
+    build: 
+      context: .
+      dockerfile: Docker/flask/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./Web/Flask:/app/Web/Flask:z
+    environment:
+      - FLASK_APP=.:create_app
+      - FLASK_ENV=development
   db:
     image: mysql/mysql-server:latest
     container_name: mysql
@@ -14,6 +29,11 @@ services:
     volumes:
       - mysql-volume:/var/lib/mysql
       - ./Database/scripts:/docker-entrypoint-initdb.d:z
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
 volumes:
   mysql-volume:
     driver: local
