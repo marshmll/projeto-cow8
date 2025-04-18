@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, Integer, Numeric, DateTime, ForeignKey, CHAR, UniqueConstraint, func
-from datetime import date, datetime, timezone
+from datetime import datetime
 from typing import Optional, Set
 from flask_login import UserMixin
 
