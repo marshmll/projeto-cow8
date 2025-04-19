@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Animal (
 
 CREATE TABLE IF NOT EXISTS ControlePesagem (
     id_animal INT NOT NULL,
-    datahora_pesagem DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    datahora_pesagem DATETIME NOT NULL DEFAULT NOW(),
     medicao_peso NUMERIC(7, 2) NOT NULL,
     observacoes TEXT NULL,
     PRIMARY KEY (id_animal, datahora_pesagem),
