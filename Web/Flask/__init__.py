@@ -53,26 +53,31 @@ def create_app():
     users = [
         {
             'username': 'renan',
+            'pfp': 'https://github.com/marshmll.png',
             'name': 'Renan da Silva Oliveira Andrade',
             'email': 'renan.silva3@pucpr.edu.br'
         },
         {
             'username': 'ricardo',
+            'pfp': 'https://github.com/Ricardo-LK.png',
             'name': 'Ricardo Lucas Kucek',
             'email': 'ricardo.kucek@pucpr.edu.br'
         },
         {
             'username': 'pedro',
+            'pfp': 'https://github.com/prussianmaster1871.png',
             'name': 'Pedro Senes Velloso Ribeiro',
             'email': 'pedro.senes@pucpr.edu.br'
         },
         {
             'username': 'neto',
+            'pfp': 'https://github.com/Vareja0.png',
             'name': 'Riscala Miguel Fadel Neto',
             'email': 'riscala.neto@pucpr.edu.br'
         },
         {
             'username': 'victor',
+            'pfp': 'https://github.com/VictorFadel06.png',
             'name': 'Victor Valerio Fadel',
             'email': 'victor.fadel@pucpr.edu.br'
         },
@@ -88,7 +93,14 @@ def create_app():
             key = bcrypt.kdf(password=senha, salt=salt, desired_key_bytes=32, rounds=200)
             key_str = b64encode(key).decode(encoding='utf-8')
 
-            usuario = Usuario(username=user['username'], nome_completo=user['name'], email=user['email'], privilegios='Usuário', salt=salt_str, key=key_str)
+            usuario = Usuario(
+                username=user['username'],
+                nome_completo=user['name'],
+                email=user['email'],
+                pfp_url=user['pfp'],
+                privilegios='Usuário',
+                salt=salt_str, key=key_str
+            )
 
             SessionLocal.add(usuario)
             SessionLocal.commit()

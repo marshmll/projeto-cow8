@@ -149,7 +149,7 @@ function setSummaryData(data) {
         <div class="bg-blue-600 h-32 p-4 text-white flex flex-col justify-between rounded-lg">
             <div class="flex items-center">
                 <div class="min-w-7 min-h-7 bg-white/30 rounded mr-4 bg-[url('static/assets/images/icons/icon_white.svg')] bg-center bg-[length:80%] bg-no-repeat"></div>
-                <span class="text-sm">Animais Registrados</span>
+                <span class="text-sm">Total de Animais</span>
             </div>
             <span class="text-2xl font-bold font-montserrat truncate">${data.total_animals} animais</span>
         </div>

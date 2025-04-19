@@ -13,6 +13,7 @@ class Usuario(Base, UserMixin):
     username : Mapped[str] = mapped_column(String(120), nullable=False)
     nome_completo : Mapped[str] = mapped_column(Text, nullable=False)
     email : Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    pfp_url : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
     status : Mapped[str] = mapped_column(String(50), nullable=False, default="Ativo")
     privilegios : Mapped[str] = mapped_column(String(50), nullable=False, default="Usuário")

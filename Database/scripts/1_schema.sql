@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS Usuario (
     username VARCHAR(120) NOT NULL,
     nome_completo TEXT NOT NULL,
     email VARCHAR(200),
+    pfp_url TEXT,
     datahora_registro DATETIME NOT NULL DEFAULT NOW(),
     status VARCHAR(50) NOT NULL DEFAULT 'Ativo',
     privilegios VARCHAR(50) NOT NULL DEFAULT 'Usuário',

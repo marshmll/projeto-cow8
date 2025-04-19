@@ -47,7 +47,8 @@
       class="w-[97%] bg-gray-800 p-2 shadow-md text-white border border-gray-700 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 mx-auto my-4"
     >
       <div class="flex items-center justify-center gap-4">
-        <a href="/"
+        <a
+          href="/"
           class="bg-blue-600 text-white w-10 h-10 border-none rounded-lg cursor-pointer bg-[url('/static/assets/images/icons/icon_white.svg')] bg-center bg-no-repeat bg-[length:70%] hover:scale-105 transition-transform duration-200"
         ></a>
         {% for key, value in data['links'].items() %}
@@ -87,7 +88,7 @@
               title="{{ data['user'].username }}"
             >
               <div
-                class="w-8 h-8 rounded-full bg-[url('/static/assets/images/default.jpg')] bg-cover bg-center mr-2"
+                class="w-8 h-8 rounded-full bg-[url({% if data['user'].pfp_url %}{{ data['user'].pfp_url }}{% else %}'/static/assets/images/default.jpg'{% endif %})] bg-cover bg-center mr-2"
               ></div>
               <span
                 class="text-white max-w-[5rem] overflow-hidden text-ellipsis"

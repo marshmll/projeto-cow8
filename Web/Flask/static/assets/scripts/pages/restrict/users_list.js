@@ -7,7 +7,9 @@ function setUsersListData(data) {
         <li class="bg-gray-700 w-full rounded-lg flex flex-col md:flex-row items-stretch md:items-center p-3 text-white text-sm gap-3 md:gap-4">
             <!-- Left Section - User Info -->
             <div class="flex flex-col sm:flex-row items-center gap-3 min-w-0 flex-1">
-                <div class="flex-shrink-0 w-10 h-10 border border-gray-500 bg-cover bg-center bg-no-repeat bg-[url('/static/assets/images/default.jpg')] rounded-full"></div>
+                <div class="flex-shrink-0 w-10 h-10 border border-gray-500 bg-contain bg-center bg-no-repeat bg-[url(${
+                  user.pfp_url || "/static/assets/images/default.jpg"
+                })] rounded-full"></div>
                 <div class="min-w-0 text-center sm:text-left">
                     <p class="font-medium truncate" title="${
                       user.nome_completo
@@ -43,11 +45,15 @@ function setUsersListData(data) {
 
             <!-- Right Section - Actions -->
             <div class="flex justify-center sm:justify-end gap-2 flex-shrink-0">
-                <button class="w-6 h-6 bg-green-600 rounded cursor-pointer bg-[url('/static/assets/images/icons/edit_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" title="Editar"></button>
-                <button class="w-6 h-6 bg-orange-500 rounded cursor-pointer bg-[url('/static/assets/images/icons/person_off_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" username="${
+                <button class="w-6 h-6 bg-green-600 rounded cursor-pointer bg-[url('/static/assets/images/icons/edit_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" title="Editar ${
                   user.username
-                }" title="Banir/Desbanir"></button>
-                <button class="w-6 h-6 bg-red-600 rounded cursor-pointer bg-[url('/static/assets/images/icons/delete_forever_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" title="Deletar"></button>
+                }" username="${user.username}"></button>
+                <button class="btn-ban w-6 h-6 bg-orange-500 rounded cursor-pointer bg-[url('/static/assets/images/icons/person_off_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" title="Banir/Desbanir ${
+                  user.username
+                }" username="${user.username}"></button>
+                <button class="btn-delete w-6 h-6 bg-red-600 rounded cursor-pointer bg-[url('/static/assets/images/icons/delete_forever_white.svg')] bg-center bg-no-repeat bg-[length:80%] hover:scale-105 transition-transform duration-200" title="Deletar ${
+                  user.username
+                }" username="${user.username}"></button>
             </div>
         </li>
     `;
@@ -55,7 +61,7 @@ function setUsersListData(data) {
 
   usersList.innerHTML = html;
 
-  document.querySelectorAll("button[username]").forEach((button) => {
+  document.querySelectorAll(".btn-ban").forEach((button) => {
     button.addEventListener("click", async (e) => {
       e.preventDefault();
       const username = e.target.getAttribute("username");
@@ -70,6 +76,37 @@ function setUsersListData(data) {
           setUsersListData(updatedUsers);
         } else {
           alert("Ocorreu um erro ao tentar banir/desbanir o usuário.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Ocorreu um erro na comunicação com o servidor.");
+      } finally {
+        e.target.classList.remove("cursor-wait", "opacity-75");
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-delete").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const doDelete = confirm(
+        "Deseja deletar o usuário selecionado? Esta ação não poderá ser desfeita."
+      );
+
+      if (!doDelete) return;
+
+      const username = e.target.getAttribute("username");
+      e.target.classList.add("cursor-wait", "opacity-75");
+
+      try {
+        const response = await fetch("/api/users/delete/" + username);
+        if (response.ok) {
+          const updatedUsers = await fetch("/api/users/all").then((res) =>
+            res.json()
+          );
+          setUsersListData(updatedUsers);
+        } else {
+          alert("Ocorreu um erro ao tentar deletar o usuário.");
         }
       } catch (error) {
         console.error("Error:", error);

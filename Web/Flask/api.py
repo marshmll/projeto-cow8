@@ -243,4 +243,17 @@ def ban_user(username: str):
 
     return jsonify(db_user.as_dict())
 
-    
+@api.route('/api/users/delete/<username>')
+def del_user(username: str):
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    rows_affected = SessionLocal.query(models.Usuario).filter(models.Usuario.username == username).delete()
+
+    res = {
+        'rowsAffected': rows_affected
+    }
+   
+    SessionLocal.commit()
+
+    return jsonify(res)
