@@ -5,6 +5,8 @@ from database.models import Usuario
 from sqlalchemy import or_
 from base64 import b64decode
 import bcrypt
+import locale
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 auth = Blueprint('auth', __name__)
 

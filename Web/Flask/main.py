@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 from database.database import SessionLocal
 from database import models
+import locale
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 main = Blueprint('main', __name__)
 
