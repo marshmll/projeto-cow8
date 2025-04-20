@@ -2,40 +2,45 @@
 <title>Usuários | MVP Cow8</title>
 {% endblock %} {% block main %}
 <div class="flex items-center justify-between mb-4">
-  <h2 class="text-gray-200 text-xl font-montserrat font-bold">Usuários</h2>
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold">Usuários</h2>
 </div>
 <article
-  class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
 >
-  <ul class="flex flex-col gap-3 users-list">
-    <span class="loader"></span>
-  </ul>
+    <ul class="flex flex-col gap-3 users-list">
+        <span class="loader"></span>
+    </ul>
+</article>
+
+{% endblock %} {% block aside %}
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold">Opções</h2>
+</div>
+<article
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+    <div
+        class="w-[97%] bg-gray-800 p-2 shadow-md text-white border border-gray-700 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 mx-auto my-4"
+    >
+        <div class="flex items-center justify-center gap-4">
+            <a
+                href="/users/list"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:scale-105 transition-transform duration-200"
+            >
+                Listar Usuários
+            </a>
+            <a
+                href="/users/register"
+                class="px-4 py-2 rounded-lg bg-transparent text-white hover:scale-105 transition-transform duration-200"
+            >
+                Registrar Usuário
+            </a>
+        </div>
+    </div>
 </article>
 {% endblock %} {% block scripts %}
 <script
-  type="module"
-  src="/static/assets/scripts/pages/restrict/users_list.js"
+    type="module"
+    src="/static/assets/scripts/pages/restrict/users_list.js"
 ></script>
 {% endblock %}
-
-<style>
-  .loader {
-    min-width: 48px;
-    min-height: 48px;
-    margin: 0 auto;
-    border-radius: 50%;
-    position: relative;
-    animation: rotate 1s linear infinite;
-    border: 5px solid #fff;
-    border-color: #fff transparent #fff transparent;
-  }
-
-  @keyframes rotate {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-</style>

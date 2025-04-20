@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, abort, flash, redirect, url_for
+from flask import Blueprint, jsonify, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from database.database import SessionLocal
 from database import models
 from datetime import datetime, timedelta
-from sqlalchemy import extract, func, distinct, update
+from sqlalchemy import extract, func, distinct, update, or_
 import locale
+import bcrypt
+from base64 import b64encode
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 api = Blueprint('api', __name__)
@@ -244,6 +246,7 @@ def ban_user(username: str):
     return jsonify(db_user.as_dict())
 
 @api.route('/api/users/delete/<username>')
+@login_required
 def del_user(username: str):
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
@@ -257,3 +260,48 @@ def del_user(username: str):
     SessionLocal.commit()
 
     return jsonify(res)
+
+@api.route('/api/users/register/', methods=['POST'])
+@login_required
+def register_user():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    fullname = request.form.get('fullname')
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+
+    if user:
+        flash('Este nome de usuário já está em uso.')
+        return redirect(url_for('main.register_user'))
+    
+    user = SessionLocal.query(models.Usuario).filter_by(email=email).first()
+
+    if user:
+        flash('Este email já está em uso.')
+        return redirect(url_for('main.register_user'))
+    
+    salt = bcrypt.gensalt(rounds=30, prefix=b'2a')
+    salt_str = b64encode(salt).decode('utf-8')
+    key = bcrypt.kdf(password=bytes(password, 'utf-8'), salt=salt, desired_key_bytes=32, rounds=200)
+    key_str = b64encode(key).decode(encoding='utf-8')
+
+    usuario = models.Usuario(
+        username=username,
+        nome_completo=fullname,
+        email=email,
+        privilegios='Usuário',
+        salt=salt_str, key=key_str
+    )
+    
+    SessionLocal.add(usuario)
+    SessionLocal.commit()
+    SessionLocal.flush()
+
+    user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+
+    return redirect(url_for('main.list_users'))
+

@@ -77,4 +77,15 @@ def list_users():
 
     return render_template('users_list.html', data=data)
 
+@main.route('/users/register')
+@login_required
+def register_user():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Acesso restrito.")
+
+    data = prepare_data()
+    data['links']['Usuários']['active'] = True
+
+    return render_template('user_register.html', data=data)
+
 
