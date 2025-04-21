@@ -20,7 +20,6 @@ services:
     image: mysql/mysql-server:latest
     container_name: mysql
     restart: always
-    build: ./Docker/mysql
     environment:
       - MYSQL_DATABASE=cow8_db
       - MYSQL_ROOT_PASSWORD=root

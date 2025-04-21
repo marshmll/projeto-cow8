@@ -38,6 +38,32 @@ class Usuario(Base, UserMixin):
         )"""
 
 
+class Balanca(Base):
+    __tablename__ = 'Balanca'
+
+    id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    uid : Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
+    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    status : Mapped[str] = mapped_column(String(50), nullable=False, default="Operacional")
+    observacoes : Mapped[str] = mapped_column(Text, nullable=True)
+
+    pesagens : Mapped[Optional[Set["ControlePesagem"]]] = relationship(
+        back_populates="balanca", cascade="all, delete-orphan"
+    )
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def __repr__(self):
+        return f"""Balanca(
+            id={self.id!r},
+            uid={self.uid!r},
+            datahora_registro={self.datahora_registro!r},
+            status={self.status!r},
+            observacoes={self.observacoes!r}
+        )"""
+
+
 class DadosAnimal(Base):
     __tablename__ = 'DadosAnimal'
 
@@ -63,12 +89,16 @@ class Animal(Base):
     __tablename__ = 'Animal'
 
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
-    uid : Mapped[str] = mapped_column(Text)
+    uid : Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
     sexo : Mapped[str] = mapped_column(CHAR(1), nullable=False)
     id_dados_animal : Mapped[int] = mapped_column(ForeignKey("DadosAnimal.id"))
 
     dados_animal : Mapped["DadosAnimal"] = relationship(
         back_populates="animais",
+    )
+
+    pesagens : Mapped[Optional[Set['ControlePesagem']]] = relationship(
+        back_populates="animal", cascade="all, delete-orphan"
     )
 
     def as_dict(self):
@@ -86,9 +116,18 @@ class ControlePesagem(Base):
     __tablename__ = "ControlePesagem"
 
     id_animal : Mapped[int] = mapped_column(ForeignKey("Animal.id"), nullable=False, primary_key=True)
-    datahora_pesagem : Mapped[datetime] = mapped_column(DateTime, default="NOW()", nullable=False, primary_key=True)
+    id_balanca : Mapped[int] = mapped_column(ForeignKey("Balanca.id"), nullable=False, primary_key=True)
+    datahora_pesagem : Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False, primary_key=True)
     medicao_peso : Mapped[float] = mapped_column(Numeric(7, 2), nullable=False)
     observacoes : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+    animal : Mapped['Animal'] = relationship(
+        back_populates="pesagens",
+    )
+
+    balanca : Mapped['Balanca'] = relationship(
+        back_populates="pesagens",
+    )
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

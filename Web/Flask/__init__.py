@@ -7,6 +7,7 @@ import bcrypt
 from .mqtt import MQTTClient
 from base64 import b64encode
 import os
+import json
 
 # Initialize DB schema
 Base.metadata.create_all(bind=engine)
@@ -125,12 +126,16 @@ def initialize_regular_users():
         db.remove()
 
 def record_measurement(logger, msg):
-    logger.info(f'Weight measurement: {msg.decode("utf-8") if isinstance(msg, bytes) else msg}')
+    data = json.loads(msg)
+
+    logger.info(f'Weight measurement: {data}')
+    
 
 def create_app():
     """Flask application factory."""
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     app.config['SECRET_KEY'] = 'a318704cff8cefa6b49509810c54e4424483201bf340eb6be53deedff42e2668'
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.logger.setLevel(logging.INFO)
 
     # Setup components

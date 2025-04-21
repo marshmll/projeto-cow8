@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base, scoped_session
 
 DATABASE_URL = "mysql+mysqlconnector://client:bancodedados@localhost:3307/cow8_db"
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

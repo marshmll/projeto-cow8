@@ -4,6 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script src="https://cdn.tailwindcss.com"></script>
+        <script
+            src="https://kit.fontawesome.com/dbb6688794.js"
+            crossorigin="anonymous"
+        ></script>
         <link
             rel="shortcut icon"
             href="/static/favicon.ico"
@@ -98,9 +102,9 @@
                     <div
                         class="absolute inset-y-0 left-0 flex items-center pl-2"
                     >
-                        <div
-                            class="w-6 h-6 bg-[url('/static/assets/images/icons/search_white.svg')] bg-center bg-no-repeat bg-[length:80%]"
-                        ></div>
+                        <div class="w-6 h-6">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
                     </div>
                     <input
                         class="pl-8 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white w-full"
@@ -111,11 +115,15 @@
                     />
                 </div>
                 <button
-                    class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 bg-[url('/static/assets/images/icons/notifications_white.svg')] bg-center bg-no-repeat bg-[length:80%] cursor-pointer"
-                ></button>
+                    class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 cursor-pointer"
+                >
+                    <i class="fa-solid fa-bell"></i>
+                </button>
                 <button
-                    class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 bg-[url('/static/assets/images/icons/settings_white.svg')] bg-center bg-no-repeat bg-[length:80%] cursor-pointer"
-                ></button>
+                    class="bg-gray-700 border border-gray-600 rounded-lg w-8 h-8 cursor-pointer"
+                >
+                    <i class="fa-solid fa-user-gear"></i>
+                </button>
                 <div class="relative inline-block">
                     <div class="dropdown">
                         <button

@@ -15,6 +15,15 @@ CREATE TABLE IF NOT EXISTS Usuario (
     UNIQUE(username, email)
 );
 
+CREATE TABLE IF NOT EXISTS Balanca (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    uid VARCHAR(120) NOT NULL,
+    datahora_registro DATETIME NOT NULL DEFAULT NOW(),
+    status VARCHAR(50) NOT NULL DEFAULT 'Operacional',
+    observacoes TEXT,
+    UNIQUE(uid)
+);
+
 CREATE TABLE IF NOT EXISTS DadosAnimal (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     raca VARCHAR(50) NOT NULL,
@@ -23,19 +32,20 @@ CREATE TABLE IF NOT EXISTS DadosAnimal (
 
 CREATE TABLE IF NOT EXISTS Animal (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    uid TEXT NOT NULL,
+    uid VARCHAR(120) NOT NULL,
     sexo CHAR(1) NOT NULL,
     id_dados_animal INT,
-    FOREIGN KEY (id_dados_animal) REFERENCES DadosAnimal(id)
-        ON DELETE CASCADE
+    FOREIGN KEY (id_dados_animal) REFERENCES DadosAnimal(id) ON DELETE CASCADE,
+    UNIQUE(uid)
 );
 
 CREATE TABLE IF NOT EXISTS ControlePesagem (
     id_animal INT NOT NULL,
+    id_balanca INT NOT NULL,
     datahora_pesagem DATETIME NOT NULL DEFAULT NOW(),
     medicao_peso NUMERIC(7, 2) NOT NULL,
     observacoes TEXT NULL,
-    PRIMARY KEY (id_animal, datahora_pesagem),
-    FOREIGN KEY (id_animal) REFERENCES Animal(id)
-        ON DELETE CASCADE
+    PRIMARY KEY (id_animal, id_balanca, datahora_pesagem),
+    FOREIGN KEY (id_animal) REFERENCES Animal(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_balanca) REFERENCES Balanca(id) ON DELETE CASCADE
 );

@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% block head %}
+<title>Balanças | MVP Cow8</title>
+{% endblock %} {% block main %}
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold">Balanças</h2>
+</div>
+<article
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+    <ul class="flex flex-col gap-3 scales-list">
+        <span class="loader"></span>
+    </ul>
+</article>
+
+{% endblock %} {% block aside %}
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold">Opções</h2>
+</div>
+<article
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+    <div
+        class="w-[97%] bg-gray-800 p-2 shadow-md text-white border border-gray-700 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 mx-auto my-4"
+    >
+        <div class="flex items-center justify-center gap-4">
+            <a
+                href="/scales/list"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:scale-105 transition-transform duration-200"
+            >
+                Listar Balanças
+            </a>
+            <a
+                href="/scales/register"
+                class="px-4 py-2 rounded-lg bg-transparent text-white hover:scale-105 transition-transform duration-200"
+            >
+                Registrar Balança
+            </a>
+        </div>
+    </div>
+</article>
+{% endblock %} {% block scripts %}
+<script
+    type="module"
+    src="/static/assets/scripts/pages/restrict/scales_list.js"
+></script>
+{% endblock %}

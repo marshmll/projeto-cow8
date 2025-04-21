@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, abort, current_app
+from flask import Blueprint, render_template, abort, url_for
 from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
@@ -6,7 +6,6 @@ import locale
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 main = Blueprint('main', __name__)
-db = get_db()
 
 links_admin = {
     'Geral': {
@@ -19,6 +18,10 @@ links_admin = {
     },
     'Usuários': {
         'link': '/users/list',
+        'active': False
+    },
+    'Balanças': {
+        'link': '/scales/list',
         'active': False
     }
 }
@@ -35,6 +38,8 @@ links_user = {
 }
 
 def prepare_data():
+    db = get_db()
+    
     data = {}
     data['animal_count'] = len(db.query(models.Animal).all())
     data['measurement_count'] = len(db.query(models.ControlePesagem).all())
@@ -51,6 +56,7 @@ def prepare_data():
     else:
         data['links'] = links_user
 
+    db.remove()
     return data
 
 @main.route('/')
@@ -90,4 +96,13 @@ def register_user():
 
     return render_template('user_register.html', data=data)
 
+@main.route('/scales/list')
+@login_required
+def list_scales():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Acesso restrito.")
 
+    data = prepare_data()
+    data['links']['Balanças']['active'] = True
+
+    return render_template('scales_list.html', data=data)

@@ -10,7 +10,6 @@ from base64 import b64encode
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 api = Blueprint('api', __name__)
-db = get_db()
 
 @api.route('/api/means')
 @login_required
@@ -20,7 +19,7 @@ def get_means():
         return redirect(url_for('auth.login'))
 
     # Consulta para obter o peso médio por mês
-
+    db = get_db()
     current_year = datetime.now().year
     monthly_avg = db.query(
         extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
@@ -41,7 +40,7 @@ def get_means():
             'avg_weight': float(avg_weight) if avg_weight is not None else 0
         })
 
-
+    db.remove()
     return jsonify(monthly_data)
     
 @api.route('/api/health_metrics')
@@ -52,6 +51,7 @@ def get_health_metrics():
         return redirect(url_for('auth.login'))
 
     current_year = datetime.now().year
+    db = get_db()
     
     # 1. Consulta animais com peso abaixo de 90% da média da raça por mês
     underweight_animals = db.query(
@@ -108,7 +108,7 @@ def get_health_metrics():
             'weight_loss_count': weight_loss,
             'total_at_risk': total
         })
-
+    db.remove()
     return jsonify(health_metrics)
 
 @api.route('/api/health_status')
@@ -118,12 +118,14 @@ def get_health_status():
         flash("O usuário foi banido por tempo indeterminado.")
         return redirect(url_for('auth.login'))
     
-
     current_year = datetime.now().year
+    db = get_db()
+
     animals = db.query(models.Animal).all()
     total_animals = len(animals)
     
     if total_animals == 0:
+        db.remove()
         return jsonify({"health_status": 100, "message": "Nenhum animal cadastrado"})
     
     healthy = warning = critical = 0
@@ -187,6 +189,8 @@ def get_health_status():
         max(1, total_animals) * 100  # Evita divisão por zero
     )
     
+    db.remove()
+
     return jsonify({
         "health_status": round(health_score, 2),
         "healthy_animals": healthy,
@@ -214,9 +218,10 @@ def get_users():
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
+    db = get_db()
 
     users = [user.as_dict() for user in db.query(models.Usuario).filter(models.Usuario.username != "admin").all()]
-
+    db.remove()
     return jsonify(users)
 
 @api.route('/api/users/ban/<username>')
@@ -224,6 +229,7 @@ def ban_user(username: str):
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
+    db = get_db()
 
     user = db.query(models.Usuario).filter_by(username=username).first()
 
@@ -248,7 +254,7 @@ def ban_user(username: str):
     db.execute(stmt)
     db.commit()
     db_user = db.query(models.Usuario).filter_by(username=username).first()
-
+    db.remove()
     return jsonify(db_user.as_dict())
 
 @api.route('/api/users/delete/<username>')
@@ -257,6 +263,7 @@ def del_user(username: str):
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
+    db = get_db()
 
     rows_affected = db.query(models.Usuario).filter(models.Usuario.username == username).delete()
 
@@ -265,7 +272,7 @@ def del_user(username: str):
     }
    
     db.commit()
-
+    db.remove()
     return jsonify(res)
 
 @api.route('/api/users/register/', methods=['POST'])
@@ -279,6 +286,7 @@ def register_user():
     email = request.form.get('email')
     password = request.form.get('password')
 
+    db = get_db()
 
     user = db.query(models.Usuario).filter_by(username=username).first()
 
@@ -313,3 +321,32 @@ def register_user():
 
     return redirect(url_for('main.list_users'))
 
+@api.route('/api/scales/all')
+@login_required
+def get_scales():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    db = get_db()
+
+    scales = [user.as_dict() for user in db.query(models.Balanca).all()]
+    db.remove()
+    return jsonify(scales)
+
+@api.route('/api/scales/delete/<uid>')
+@login_required
+def del_scale(uid: str):
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    db = get_db()
+
+    rows_affected = db.query(models.Balanca).filter(models.Balanca.uid == uid).delete()
+
+    res = {
+        'rowsAffected': rows_affected
+    }
+   
+    db.commit()
+    db.remove()
+    return jsonify(res)
