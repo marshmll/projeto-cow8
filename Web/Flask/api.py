@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, flash, redirect, url_for, request
 from flask_login import login_required, current_user
-from database.database import SessionLocal
+from database.database import get_db
 from database import models
 from datetime import datetime, timedelta
 from sqlalchemy import extract, func, distinct, update, or_
@@ -10,6 +10,7 @@ from base64 import b64encode
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 api = Blueprint('api', __name__)
+db = get_db()
 
 @api.route('/api/means')
 @login_required
@@ -19,8 +20,9 @@ def get_means():
         return redirect(url_for('auth.login'))
 
     # Consulta para obter o peso médio por mês
+
     current_year = datetime.now().year
-    monthly_avg = SessionLocal.query(
+    monthly_avg = db.query(
         extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
         func.avg(models.ControlePesagem.medicao_peso).label('avg_weight')
     ).filter(
@@ -39,6 +41,7 @@ def get_means():
             'avg_weight': float(avg_weight) if avg_weight is not None else 0
         })
 
+
     return jsonify(monthly_data)
     
 @api.route('/api/health_metrics')
@@ -51,7 +54,7 @@ def get_health_metrics():
     current_year = datetime.now().year
     
     # 1. Consulta animais com peso abaixo de 90% da média da raça por mês
-    underweight_animals = SessionLocal.query(
+    underweight_animals = db.query(
         extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
         func.count(distinct(models.ControlePesagem.id_animal)).label('count')
     ).join(
@@ -66,7 +69,7 @@ def get_health_metrics():
     ).all()
 
     # 2. Consulta animais com perda de peso entre pesagens consecutivas
-    weight_loss_subquery = SessionLocal.query(
+    weight_loss_subquery = db.query(
         models.ControlePesagem.id_animal,
         extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
         (models.ControlePesagem.medicao_peso - func.lag(models.ControlePesagem.medicao_peso).over(
@@ -77,7 +80,7 @@ def get_health_metrics():
         extract('year', models.ControlePesagem.datahora_pesagem) == current_year
     ).subquery()
 
-    weight_loss_animals = SessionLocal.query(
+    weight_loss_animals = db.query(
         weight_loss_subquery.c.month,
         func.count(distinct(weight_loss_subquery.c.id_animal)).label('count')
     ).filter(
@@ -114,9 +117,10 @@ def get_health_status():
     if current_user.status == "Banido":
         flash("O usuário foi banido por tempo indeterminado.")
         return redirect(url_for('auth.login'))
+    
 
     current_year = datetime.now().year
-    animals = SessionLocal.query(models.Animal).all()
+    animals = db.query(models.Animal).all()
     total_animals = len(animals)
     
     if total_animals == 0:
@@ -126,7 +130,7 @@ def get_health_status():
 
     for animal in animals:
         # Obter todas as pesagens do ano atual
-        weights = SessionLocal.query(models.ControlePesagem)\
+        weights = db.query(models.ControlePesagem)\
             .filter(models.ControlePesagem.id_animal == animal.id)\
             .filter(extract('year', models.ControlePesagem.datahora_pesagem) == current_year)\
             .order_by(models.ControlePesagem.datahora_pesagem.asc())\
@@ -139,7 +143,7 @@ def get_health_status():
         first_weight = float(weights[0].medicao_peso)
         last_weight = float(weights[-1].medicao_peso)
         
-        breed_data = SessionLocal.query(models.DadosAnimal)\
+        breed_data = db.query(models.DadosAnimal)\
             .filter(models.DadosAnimal.id == animal.id_dados_animal)\
             .first()
         
@@ -210,7 +214,8 @@ def get_users():
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
-    users = [user.as_dict() for user in SessionLocal.query(models.Usuario).filter(models.Usuario.username != "admin").all()]
+
+    users = [user.as_dict() for user in db.query(models.Usuario).filter(models.Usuario.username != "admin").all()]
 
     return jsonify(users)
 
@@ -219,7 +224,8 @@ def ban_user(username: str):
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
-    user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+
+    user = db.query(models.Usuario).filter_by(username=username).first()
 
     if not user:
         abort(404, description="O usuário nao existe no banco de dados.")
@@ -239,9 +245,9 @@ def ban_user(username: str):
             .values(status="Ativo")
         )
 
-    SessionLocal.execute(stmt)
-    SessionLocal.commit()
-    db_user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+    db.execute(stmt)
+    db.commit()
+    db_user = db.query(models.Usuario).filter_by(username=username).first()
 
     return jsonify(db_user.as_dict())
 
@@ -251,13 +257,14 @@ def del_user(username: str):
     if current_user.privilegios != "Administrador":
         abort(401, description="Permissões insuficientes.")
 
-    rows_affected = SessionLocal.query(models.Usuario).filter(models.Usuario.username == username).delete()
+
+    rows_affected = db.query(models.Usuario).filter(models.Usuario.username == username).delete()
 
     res = {
         'rowsAffected': rows_affected
     }
    
-    SessionLocal.commit()
+    db.commit()
 
     return jsonify(res)
 
@@ -272,22 +279,23 @@ def register_user():
     email = request.form.get('email')
     password = request.form.get('password')
 
-    user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+
+    user = db.query(models.Usuario).filter_by(username=username).first()
 
     if user:
         flash('Este nome de usuário já está em uso.')
         return redirect(url_for('main.register_user'))
     
-    user = SessionLocal.query(models.Usuario).filter_by(email=email).first()
+    user = db.query(models.Usuario).filter_by(email=email).first()
 
     if user:
         flash('Este email já está em uso.')
         return redirect(url_for('main.register_user'))
     
-    salt = bcrypt.gensalt(rounds=30, prefix=b'2a')
+    salt = bcrypt.gensalt(rounds=12)
     salt_str = b64encode(salt).decode('utf-8')
-    key = bcrypt.kdf(password=bytes(password, 'utf-8'), salt=salt, desired_key_bytes=32, rounds=200)
-    key_str = b64encode(key).decode(encoding='utf-8')
+    key = bcrypt.kdf(password=password.encode(), salt=salt, desired_key_bytes=32, rounds=100)
+    key_str = b64encode(key).decode('utf-8')
 
     usuario = models.Usuario(
         username=username,
@@ -297,11 +305,11 @@ def register_user():
         salt=salt_str, key=key_str
     )
     
-    SessionLocal.add(usuario)
-    SessionLocal.commit()
-    SessionLocal.flush()
+    db.add(usuario)
+    db.commit()
+    db.flush()
 
-    user = SessionLocal.query(models.Usuario).filter_by(username=username).first()
+    user = db.query(models.Usuario).filter_by(username=username).first()
 
     return redirect(url_for('main.list_users'))
 

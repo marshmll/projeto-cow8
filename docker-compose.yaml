@@ -4,8 +4,7 @@ services:
     build: 
       context: .
       dockerfile: Docker/flask/Dockerfile
-    ports:
-      - "8000:8000"
+    network_mode: host
     depends_on:
       db:
         condition: service_healthy
@@ -14,6 +13,9 @@ services:
     environment:
       - FLASK_APP=.:create_app
       - FLASK_ENV=development
+    dns:
+      - 8.8.8.8  # Google DNS
+      - 1.1.1.1  # Cloudflare DNS
   db:
     image: mysql/mysql-server:latest
     container_name: mysql

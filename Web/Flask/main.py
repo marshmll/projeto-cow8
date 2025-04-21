@@ -1,11 +1,12 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, current_app
 from flask_login import login_required, current_user
-from database.database import SessionLocal
+from database.database import get_db
 from database import models
 import locale
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 main = Blueprint('main', __name__)
+db = get_db()
 
 links_admin = {
     'Geral': {
@@ -35,8 +36,8 @@ links_user = {
 
 def prepare_data():
     data = {}
-    data['animal_count'] = len(SessionLocal.query(models.Animal).all())
-    data['measurement_count'] = len(SessionLocal.query(models.ControlePesagem).all())
+    data['animal_count'] = len(db.query(models.Animal).all())
+    data['measurement_count'] = len(db.query(models.ControlePesagem).all())
     data['user'] = current_user
 
     for key, value in links_user.items():
@@ -57,6 +58,7 @@ def prepare_data():
 def index(): 
     data = prepare_data()
     data['links']['Geral']['active'] = True
+
     return render_template('index.html', data=data)
 
 @main.route('/reports')

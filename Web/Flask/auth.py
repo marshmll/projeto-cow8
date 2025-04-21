@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from database.database import SessionLocal
+from database.database import get_db
 from database.models import Usuario
 from sqlalchemy import or_
 from base64 import b64decode
@@ -9,6 +9,7 @@ import locale
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 auth = Blueprint('auth', __name__)
+db = get_db()
 
 @auth.route('/login')
 def login():
@@ -23,7 +24,7 @@ def login_post():
     password = request.form.get('pass')
     remember = True if request.form.get('remember') else False
 
-    user = SessionLocal.query(Usuario).filter(or_(Usuario.username == username_or_email, Usuario.email == username_or_email)).first()
+    user = db.query(Usuario).filter(or_(Usuario.username == username_or_email, Usuario.email == username_or_email)).first()
 
     if not user:
         flash('Usuário inexistente.')
