@@ -9,12 +9,16 @@
 \usepackage{listings}
 \usepackage{hyphenat}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
 
 \title{\textbf{Escolha e Implementação de um Framework Front-end para o MVP Cow8}}
 \author{
     Renan da Silva Oliveira Andrade (\texttt{renan.silva3@pucpr.edu.br})\\
     Ricardo Lucas Kucek (\texttt{ricardo.kucek@pucpr.edu.br})\\
-    Pedro Senes Velloso Ribeiro (\texttt{pedro.senes@pucpr.edu.br})\\ 
+    Pedro Senes Velloso Ribeiro (\texttt{pedro.senes@pucpr.edu.br})\\
     Riscala Miguel Fadel Neto (\texttt{riscala.neto@pucpr.edu.br})\\
     Victor Valerio Fadel (\texttt{victor.fadel@pucpr.edu.br})
 }
@@ -40,11 +44,113 @@ Análise dos requisitos do projeto (responsividade, usabilidade, desempenho) e c
 
 \section{Escolha do Framework Front-end}
 
-Justificativa da escolha (escolhemos o Tailwind CSS por sua flexibilidade, etc.).
+Dentre as alternativas presentes no mercado, o MVP Cow8 utiliza o framework front-end \textbf{Tailwind CSS}, pois melhor se adequou aos requisitos de implementação do projeto.
+
+\subsection{Análise Comparativa entre Frameworks Considerados}
+
+Os frameworks considerados para o desenvolvimento foram: \textbf{React.js, Bootstrap e Tailwind CSS}. Foram realizadas análises comparativas primordialmente imparciais sobre as vantagens e desvantagens de se usar cada framework baseadas em 4 pontos críticos: \textbf{Facilidade de uso, Customização, Performance e Integração com o Flask.}
+
+\begin{table}[H]
+\centering
+\caption{Comparação de Facilidade de Uso}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Framework} & \textbf{Documentação} & \textbf{Comunidade} & \textbf{Curva de Aprendizado} \\
+\midrule
+React & Excelente & Muito grande & Alta \\
+Bootstrap & Muito boa & Enorme & Baixa a média \\
+Tailwind CSS & Boa & Crescente & Média \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Comparação de Capacidade de Customização}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Framework} & \textbf{Flexibilidade} & \textbf{Temas Prontos} & \textbf{Override de Estilos} \\
+\midrule
+React & Alta & Dependente & Requer CSS adicional \\
+Bootstrap & Limitada & Muitos & Possível com Sass \\
+Tailwind CSS & Máxima & Poucos & Fácil \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Comparação de Performance}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Framework} & \textbf{Tamanho do Bundle} & \textbf{Renderização} & \textbf{Otimização} \\
+\midrule
+React & Grande & Client-side & Code-splitting necessário \\
+Bootstrap & Moderado & Server-side & PurgeCSS recomendado \\
+Tailwind CSS & Leve & Server-side & Automática \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Comparação de Integração com Flask}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Framework} & \textbf{Configuração} & \textbf{Templates (Jinja2)} & \textbf{Complexidade} \\
+\midrule
+React & Complexa & Incompatível direta & Alta \\
+Bootstrap & Simples & Perfeita & Baixa \\
+Tailwind CSS & Moderada & Funciona & Média \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Através destas análises, conclui-se que cada framework proporciona resultados únicos. Para cada framework, observa-se que é benéfico nos seguintes casos:
+
+\begin{itemize}
+\item \textbf{Bootstrap}: Melhor para projetos simples e rápidos com Flask
+\item \textbf{Tailwind CSS}: Ideal para designs customizados sem sacrificar performance
+\item \textbf{React}: Recomendado apenas para aplicações complexas com frontend separado
+\end{itemize}
+
+\subsection{Motivos da Escolha do Framework Tailwind CSS}
+
+O front-end do MVP Cow8 utiliza-se do framework Tailwind CSS. Existem diversos motivos pelos quais o projeto melhor se adapta ao uso de Tailwind, baseados nas análises apresentadas no capítulo anterior:
+
+\begin{itemize}
+\item \textbf{Customização}: O objetivo é criar uma interface altamente customizável e reutilizável, e o Tailwind atende à este requisito.
+\item \textbf{Integração com Templates Jinja2}: A combinação do uso dos templates com as classes inline do Tailwind permitem que os estilos das páginas sejam facilmente modificadas onde houver necessidade, sem preocupação com o uso de arquivos de estilos externos que necessitam ser importados de arquivos estáticos.
+\item \textbf{Ausência de \textit{Bloatware}}: O Tailwind possui um bundle leve, o que diminui o tempo de renderização e de carregamento das páginas, proporcionando uma experiência de usuário mais avantajada e uma economia de processamento que pode ser direcionada à outras tarefas mais críticas e relevantes, como o processamento de requests de banco de dados e processamento de mensagens WebSocket do broker MQTT.
+\item \textbf{Fácil configuração para produção e desenvolvimento via CDN}: A utilização do Tailwind em desenvolvimento é simples, necessitando apenas de um \texttt{<script>} CDN no corpo dos arquivos HTML. Para produção, a configuração também é simples.
+\end{itemize}
 
 \section{Implementação do Design Front-end}
 
-Detalhes da implementação, estrutura de pastas, componentes utilizados e integração com o back-end (Flask).
+\subsection{Estrutura de Diretórios}
+
+O projeto segue uma estrutura de diretórios simples, contando com os Blueprints Flask, módulos de banco de dados e MQTT próprios e \textit{Shell Scripts} utilizados para automatizar o procedimento de inicialização limpa (pois o projeto está sendo desenvolvido em um container Docker, o qual pode ocasionar corrupções).
+
+O arquivo \texttt{requirements.txt} lista todas as dependências de bibliotecas Python do projeto, sendo facilmente instaladas recursivamente no desenvolvimento com o uso de um \textit{Virtual Environment} (venv).
+
+Além disso, os diretórios \texttt{static/} e \texttt{templates/} são os diretórios que contêm os arquivos estáticos e templates HTML, respectivamente.
+
+\begin{verbatim}
+    .
+    |- api.py
+    |- auth.py
+    |- clean.sh
+    |- database/
+    |- __init__.py
+    |- main.py
+    |- mqtt.py
+    |- requirements.txt
+    |- static/
+    |- templates/
+
+\end{verbatim}
+
+\subsection{Template base e configuração do Tailwind}
 
 \section{Demonstração do Design}
 
