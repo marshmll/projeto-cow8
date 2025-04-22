@@ -106,3 +106,15 @@ def list_scales():
     data['links']['Balanças']['active'] = True
 
     return render_template('scales_list.html', data=data)
+
+
+@main.route('/scales/register')
+@login_required
+def register_scale():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Acesso restrito.")
+
+    data = prepare_data()
+    data['links']['Balanças']['active'] = True
+
+    return render_template('scale_register.html', data=data)

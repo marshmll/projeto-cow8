@@ -1,6 +1,48 @@
 {% extends "base.html" %} {% block head %}
 <title>Balanças | MVP Cow8</title>
 {% endblock %} {% block main %}
+
+<!-- Modal Backdrop -->
+<div
+    id="modalBackdrop"
+    class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
+></div>
+
+<!-- Modal Container -->
+<div
+    id="modal"
+    class="fixed inset-0 flex items-center justify-center z-50 hidden"
+>
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center border-b p-4">
+            <h3 class="text-xl font-semibold text-gray-800">Balança</h3>
+            <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body p-4"></div>
+
+        <!-- Modal Footer -->
+        <div class="flex justify-end space-x-3 border-t p-4"></div>
+    </div>
+</div>
+
 <div class="flex items-center justify-between mb-4">
     <h2 class="text-gray-200 text-xl font-montserrat font-bold">Balanças</h2>
 </div>
@@ -33,7 +75,7 @@
                 href="/scales/register"
                 class="px-4 py-2 rounded-lg bg-transparent text-white hover:scale-105 transition-transform duration-200"
             >
-                Registrar Balança
+                Cadastrar Balança
             </a>
         </div>
     </div>
@@ -43,4 +85,5 @@
     type="module"
     src="/static/assets/scripts/pages/restrict/scales_list.js"
 ></script>
+<script type="module" src="/static/assets/scripts/modal.js"></script>
 {% endblock %}

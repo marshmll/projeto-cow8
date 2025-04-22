@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Balanca (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     uid VARCHAR(120) NOT NULL,
     datahora_registro DATETIME NOT NULL DEFAULT NOW(),
+    ultima_calibragem DATETIME,
     status VARCHAR(50) NOT NULL DEFAULT 'Operacional',
     observacoes TEXT,
     UNIQUE(uid)

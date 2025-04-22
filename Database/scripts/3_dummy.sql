@@ -7,10 +7,10 @@ INSERT INTO DadosAnimal (raca, peso_medio) VALUES
 
 INSERT INTO Balanca (id, uid, status) VALUES
 (1, 'f654', 'Operacional'),
-(2, '89f3', 'Operacional'),
+(2, '89f3', 'Erro'),
 (3, '41f5', 'Operacional'),
 (4, 'c5ab', 'Operacional'),
-(5, 'faba', 'Operacional');
+(5, 'faba', 'Desativado');
 
 INSERT INTO Animal (uid, sexo, id_dados_animal) VALUES 
 ('MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg=', 'M', 1),

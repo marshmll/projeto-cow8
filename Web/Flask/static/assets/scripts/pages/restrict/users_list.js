@@ -26,7 +26,7 @@ function setUsersListData(data) {
             <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 min-w-0 flex-1">
                 <div class="text-gray-300 text-xs sm:text-sm truncate min-w-0" title="${new Date(
                     user.datahora_registro
-                ).toString()}">
+                ).toLocaleString()}">
                     <span>Reg. em ${new Date(
                         user.datahora_registro
                     ).toLocaleDateString()}</span>

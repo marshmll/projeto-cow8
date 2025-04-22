@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
 from datetime import datetime, timedelta
-from sqlalchemy import extract, func, distinct, update, or_
+from sqlalchemy import extract, func, distinct, update
 import locale
 import bcrypt
 from base64 import b64encode
@@ -30,7 +30,7 @@ def get_means():
         extract('month', models.ControlePesagem.datahora_pesagem)
     ).all()
     
-    # Criar uma lista com todos os meses do ano (meses sem dados terão valor None)
+    # Criar uma lista com todos os meses do ano (meses sem dados terão valor 0)
     monthly_data = []
     for month in range(1, 13):
         avg_weight = next((item.avg_weight for item in monthly_avg if item.month == month), None)
@@ -317,8 +317,7 @@ def register_user():
     db.commit()
     db.flush()
 
-    user = db.query(models.Usuario).filter_by(username=username).first()
-
+    db.remove()
     return redirect(url_for('main.list_users'))
 
 @api.route('/api/scales/all')
@@ -350,3 +349,51 @@ def del_scale(uid: str):
     db.commit()
     db.remove()
     return jsonify(res)
+
+@api.route('/api/scales/<uid>')
+@login_required
+def get_scale(uid: str):
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    db = get_db()
+
+    scale = db.query(models.Balanca).filter_by(uid=uid).first()
+
+    db.remove()
+    if not scale:
+        abort(404, message="A balança solicitada não existe.")
+
+    return jsonify(scale.as_dict())
+
+@api.route('/api/scales/register/', methods=['POST'])
+@login_required
+def register_scale():
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    uid = request.form.get('uid')
+    obs = request.form.get('obs')
+
+    if uid:
+        uid = uid.lower()
+
+    db = get_db()
+
+    scale = db.query(models.Balanca).filter_by(uid=uid).first()
+
+    if scale:
+        flash('Este identificador único já foi usado por outra balança')
+        return redirect(url_for('main.register_scale'))
+
+    db_scale = models.Balanca(
+        uid=uid,
+        observacoes=obs
+    )
+    
+    db.add(db_scale)
+    db.commit()
+    db.flush()
+
+    db.remove()
+    return redirect(url_for('main.list_scales'))
