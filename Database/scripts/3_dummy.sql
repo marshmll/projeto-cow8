@@ -13,11 +13,11 @@ INSERT INTO Balanca (id, uid, status) VALUES
 (5, 'faba', 'Desativado');
 
 INSERT INTO Animal (uid, sexo, id_dados_animal) VALUES 
-('MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg=', 'M', 1),
-('QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejEyMzQ1Njc4OTA=', 'F', 2),
-('eHl6MTIzNDU2Nzg5MEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=', 'M', 3),
-('OTg3NjU0MzIxMDEyMzQ1Njc4OTBBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWmFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6', 'F', 4),
-('YWJjMTIzZGVmNDU2Z2hpNzg5MEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaOTg3NjU0MzIxMA==', 'M', 5);
+('MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=', 'M', 1),
+('QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZ=', 'F', 2),
+('NDA4ZmExMzcyOTBiMmJlMWVjZDA2YWU1MTQ4ZWI1OTk=', 'M', 3),
+('Zjc4MGI2YzYxYjNmNDVkY2U5MDRjNDg4YjBhNDRjZjE=', 'F', 4),
+('NzVjNTliMmEyMjc1NzYyNWIzYzFkOWUyNDQxNWU4NWE=', 'M', 5);
 
 -- Inserções mensais para 2025 (padrões claros)
 -- Janeiro (todos começam com pesos iniciais)

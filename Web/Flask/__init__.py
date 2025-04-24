@@ -3,11 +3,11 @@ from flask import Flask
 from flask_login import LoginManager
 from database.database import Base, engine, get_db
 from database.models import Usuario
+from database.callbacks import record_measurement, scale_status_refresh
 import bcrypt
 from .mqtt import MQTTClient
 from base64 import b64encode
 import os
-import json
 
 # Initialize DB schema
 Base.metadata.create_all(bind=engine)
@@ -124,11 +124,6 @@ def initialize_regular_users():
         logging.error(f"Failed to create regular users: {e}")
     finally:
         db.remove()
-
-def record_measurement(logger, msg):
-    data = json.loads(msg)
-
-    logger.info(f'Weight measurement: {data}')
     
 
 def create_app():
@@ -153,6 +148,7 @@ def create_app():
             app.logger.error("Failed to connect to MQTT")
 
         mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurement', record_measurement)
+        mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', scale_status_refresh)
 
     # @app.teardown_appcontext
     # def shutdown_session(exception=None):
