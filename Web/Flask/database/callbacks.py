@@ -1,5 +1,5 @@
 import json
-
+from sqlalchemy import update, func
 from database.database import get_db
 from . import models
 
@@ -43,4 +43,27 @@ def record_measurement(logger, payload):
 def scale_status_refresh(logger, payload):
     data = json.loads(payload)
 
-    logger.info(f"Status: {data}")
+    if "uid" not in data or "status" not in data:
+        logger.warning(f"Ill formed payload of status: {data}")
+        return
+
+    db = get_db()
+
+    scale = db.query(models.Balanca).filter_by(uid=data['uid']).first()
+
+    if not scale:
+        logger.warning(f"Unregistered scale: {data['uid']}")
+        db.remove()
+        return
+
+    stmt = (
+        update(models.Balanca)
+        .where(models.Balanca.uid == data['uid'])
+        .values(status=data['status'], ultima_comunicacao=func.now())
+    )
+
+    db.execute(stmt)
+    db.commit()
+    db.remove()
+
+    logger.info(f"Updated scale status for scale with uid {data['uid']}: {data['status']}")

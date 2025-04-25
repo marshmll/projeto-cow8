@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, abort, flash, redirect, url_for, request
+from flask import Blueprint, jsonify, abort, flash, redirect, url_for, request, current_app
 from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import extract, func, distinct, update
 import locale
 import bcrypt
+import json
 from base64 import b64encode
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
@@ -332,7 +333,7 @@ def get_scales():
     db.remove()
     return jsonify(scales)
 
-@api.route('/api/scales/delete/<uid>')
+@api.route('/api/scales/delete/<uid>', methods=['DELETE'])
 @login_required
 def del_scale(uid: str):
     if current_user.privilegios != "Administrador":
@@ -388,6 +389,7 @@ def register_scale():
 
     db_scale = models.Balanca(
         uid=uid,
+        status="Offline",
         observacoes=obs
     )
     
@@ -397,3 +399,29 @@ def register_scale():
 
     db.remove()
     return redirect(url_for('main.list_scales'))
+
+@api.route('/api/scales/<uid>/command/<command>')
+@login_required
+def scale_command(uid, command):
+    data = {
+        'uid': uid,
+        'command': command
+    }
+
+    if command == "TARE":
+        db = get_db()
+        stmt = (
+            update(models.Balanca)
+            .where(models.Balanca.uid == uid)
+            .values(ultima_calibragem=func.now())
+        )
+
+        db.execute(stmt)
+        db.commit()
+        db.remove()
+
+    j = json.dumps(data)
+
+    current_app.extensions['mqtt'].publish('cow8/commands', j)
+
+    return jsonify(data)

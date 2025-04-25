@@ -69,7 +69,7 @@ class MQTTClient:
             self._is_connected = True
             self._subscribed_topics.clear()
             self._logger.info("Connected to MQTT Broker")
-            self._client.publish('cow8/status', f'Connected at {datetime.now()}')
+            # self._client.publish('cow8/status', f'Connected at {datetime.now()}')
 
             for topic, qos in self._pending_subscriptions:
                 if self._subscribe_internal(topic, qos):
@@ -168,6 +168,63 @@ class MQTTClient:
             else:
                 self._pending_subscriptions.append((topic, qos))
                 return True
+
+
+    def publish(self, topic, payload=None, qos=0, retain=False):
+        """
+        Publish a message to an MQTT topic.
+        
+        Args:
+            topic (str): The topic to publish to
+            payload (str/bytes/dict, optional): The message payload. If dict, will be JSON serialized.
+            qos (int, optional): Quality of Service level (0, 1, or 2)
+            retain (bool, optional): Whether the message should be retained
+        
+        Returns:
+            tuple: (success: bool, message_id: int or None)
+        """
+        with self._lock:
+            if not self._is_connected or not self._client:
+                self._logger.warning(f"Not connected, cannot publish to {topic}")
+                return False, None
+
+            try:
+                # Handle different payload types
+                if payload is None:
+                    payload = ""
+                elif isinstance(payload, dict):
+                    payload = json.dumps(payload)
+                elif not isinstance(payload, (str, bytes)):
+                    payload = str(payload)
+
+                # Convert to bytes if not already
+                if isinstance(payload, str):
+                    payload = payload.encode('utf-8')
+
+                # Check for duplicate publication
+                fp = self._fingerprint(topic, payload)
+                now = time.time()
+                if fp in self._message_index and now - self._message_index[fp] < SHORT_DUPLICATE_WINDOW:
+                    self._logger.debug(f"Skipping duplicate publish to {topic}")
+                    return True, None  # Consider it successful but didn't actually send
+
+                # Actually publish the message
+                info = self._client.publish(topic, payload, qos=qos, retain=retain)
+                
+                if info.rc == mqtt.MQTT_ERR_SUCCESS:
+                    self._logger.debug(f"Published to {topic} (QoS: {qos}, Retain: {retain})")
+                    # Track this message to avoid processing our own publications
+                    self._message_index[fp] = now
+                    self._message_history.append((fp, now))
+                    return True, info.mid
+                else:
+                    self._logger.error(f"Publish failed to {topic} with error code {info.rc}")
+                    return False, info.mid
+
+            except Exception as e:
+                self._logger.error(f"Error publishing to {topic}: {e}")
+                return False, None
+
 
     def add_listener_on_topic(self, uid, topic, callback):
         existing = [h for h in self._listener_callbacks if h['topic'] == topic]

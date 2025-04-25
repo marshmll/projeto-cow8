@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS Balanca (
     uid VARCHAR(120) NOT NULL,
     datahora_registro DATETIME NOT NULL DEFAULT NOW(),
     ultima_calibragem DATETIME,
-    status VARCHAR(50) NOT NULL DEFAULT 'Operacional',
+    ultima_comunicacao DATETIME,
+    status VARCHAR(50) NOT NULL DEFAULT 'Offline',
     observacoes TEXT,
     UNIQUE(uid)
 );

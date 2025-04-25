@@ -6,11 +6,11 @@ INSERT INTO DadosAnimal (raca, peso_medio) VALUES
 ('Girolando', 450.00);
 
 INSERT INTO Balanca (id, uid, status) VALUES
-(1, 'f654', 'Operacional'),
-(2, '89f3', 'Erro'),
-(3, '41f5', 'Operacional'),
-(4, 'c5ab', 'Operacional'),
-(5, 'faba', 'Desativado');
+(1, 'f654', 'Offline'),
+(2, '89f3', 'Offline'),
+(3, '41f5', 'Offline'),
+(4, 'c5ab', 'Offline'),
+(5, 'faba', 'Offline');
 
 INSERT INTO Animal (uid, sexo, id_dados_animal) VALUES 
 ('MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=', 'M', 1),

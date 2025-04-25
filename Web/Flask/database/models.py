@@ -45,7 +45,8 @@ class Balanca(Base):
     uid : Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
     datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
     ultima_calibragem : Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    status : Mapped[str] = mapped_column(String(50), nullable=False, default="Operacional")
+    ultima_comunicacao : Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    status : Mapped[str] = mapped_column(String(50), nullable=False, default="Offline")
     observacoes : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     pesagens : Mapped[Optional[Set["ControlePesagem"]]] = relationship(
@@ -61,6 +62,7 @@ class Balanca(Base):
             uid={self.uid!r},
             datahora_registro={self.datahora_registro!r},
             ultima_calibragem={self.ultima_calibragem!r},
+            ultima_comunicacao={self.ultima_comunicacao!r},
             status={self.status!r},
             observacoes={self.observacoes!r}
         )"""

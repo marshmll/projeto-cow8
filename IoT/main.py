@@ -135,25 +135,24 @@ def handle_commands(topic, msg):
             print('Command received: TARE')
             info_sound()
             hx.tare(10)
-            send_status(data['command'] + "+OK")
         elif data['command'] == 'DISABLE':
             print('Command received: DISABLE')
             info_sound()
             global disable
             disable = True
-            send_status(data['command'] + "+OK")
+            send_status('Desabilitado')
         elif data['command'] == 'ENABLE':
             print('Command received: ENABLE')
             info_sound()
             global disable
             disable = False
-            send_status(data['command'] + "+OK")
+            send_status('Online')
         elif data['command'] == 'POWEROFF':
             print('Command received: POWEROFF')
             info_sound()
             global disable
             disable = False
-            send_status(data['command'] + "+OK")
+            send_status('Offline')
             raise KeyboardInterrupt
         else:
             print(f"Unknown command: {data['command']}")
@@ -208,7 +207,7 @@ def do_connect_mqtt(retries=3):
             client.subscribe(MQTT_COMMANDS) 
 
             print("Conectado!")
-            send_status('ONLINE')
+            send_status('Online')
             return
         except Exception as e:
             print("Erro na conexão com o MQTT, tentando novamente...")
@@ -270,5 +269,5 @@ try:
 
                 sleep(WAIT)
 except KeyboardInterrupt:
-    send_status('OFFLINE')
+    send_status('Offline')
     buzzer.deinit()

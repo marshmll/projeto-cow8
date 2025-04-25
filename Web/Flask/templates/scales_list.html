@@ -2,6 +2,23 @@
 <title>Balanças | MVP Cow8</title>
 {% endblock %} {% block main %}
 
+<style>
+    .command-btn {
+        @apply flex flex-col items-center justify-center p-3 rounded-lg transition-all;
+        @apply border border-transparent hover:border-gray-300;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
+        min-height: 80px;
+    }
+
+    .command-btn svg {
+        @apply mb-1;
+    }
+
+    .command-btn span {
+        @apply text-sm font-medium;
+    }
+</style>
+
 <!-- Modal Backdrop -->
 <div
     id="modalBackdrop"
