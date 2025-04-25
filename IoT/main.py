@@ -212,11 +212,26 @@ def do_connect_mqtt(retries=3):
         except Exception as e:
             print("Erro na conexão com o MQTT, tentando novamente...")
             warning_sound()
+            sleep(2)
 
     
     print("Falha na conexão com o MQTT. Abortando...")
     error_sound()
     sys.exit(1)
+
+counter = 0
+refresh = 10
+def refresh_status():
+    global counter
+    counter += 1
+    
+    if counter >= refresh:
+        counter = 0
+        print("Refreshing status...")
+        if not disable:
+            send_status('Online')
+        else:
+            send_status('Desabilitado')
 
 startup_sound()
 do_connect_wifi()
@@ -226,6 +241,7 @@ try:
     while True:
         sleep(1)
         client.check_msg()
+        refresh_status()
     
         if disable:
             # Quando desabilitado, apenas abre as porteiras e não faz medição

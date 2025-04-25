@@ -68,7 +68,7 @@ function createScaleListItem(scale) {
                 }" uid="${scale.uid}">
                     <i class="fa-solid fa-circle-info"></i>
                 </button>
-                <button class="btn-commands w-6 h-6 bg-orange-500 rounded cursor-pointer hover:scale-105 transition-transform duration-200" title="Painel de Comandos da Balança ${
+                <button class="btn-commands w-6 h-6 bg-gray-800 rounded cursor-pointer hover:scale-105 transition-transform duration-200" title="Painel de Comandos da Balança ${
                     scale.uid
                 }" uid="${scale.uid}">
                     <i class="fa-solid fa-terminal"></i>
