@@ -30,7 +30,7 @@ def record_measurement(logger, payload):
 
     record = models.ControlePesagem(
         id_animal=cow.id,
-        id_balanca=scale.id,
+        uid_balanca=scale.uid,
         medicao_peso=data['cowWeight']
     )
 
@@ -59,7 +59,7 @@ def scale_status_refresh(logger, payload):
     stmt = (
         update(models.Balanca)
         .where(models.Balanca.uid == data['uid'])
-        .values(status=data['status'], ultima_comunicacao=func.now())
+        .values(status=data['status'], ultima_comunicacao=func.current_timestamp())
     )
 
     db.execute(stmt)

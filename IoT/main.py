@@ -54,22 +54,14 @@ warning = [
     Note(Buzzer.C5, Note.SIXTEENTH, Note.STACCATO),
 ]
 error = [
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.D5, Note.SIXTEENTH, Note.STACCATO),
-    Note(Buzzer.A4, Note.SIXTEENTH, Note.STACCATO),
+    Note(Buzzer.D5, Note.SIXTEENTH),
+    Note(Buzzer.A4, Note.SIXTEENTH),
+    Note(Buzzer.D5, Note.SIXTEENTH),
+    Note(Buzzer.A4, Note.SIXTEENTH),
+    Note(Buzzer.D5, Note.SIXTEENTH),
+    Note(Buzzer.A4, Note.SIXTEENTH),
+    Note(Buzzer.D5, Note.SIXTEENTH),
+    Note(Buzzer.A4, Note.SIXTEENTH),
 ]
 
 def startup_sound():
@@ -89,7 +81,7 @@ def warning_sound():
     
 def error_sound():
     buzzer.set_tune(error)
-    buzzer.set_tempo(180)
+    buzzer.set_tempo(100)
     buzzer.play_tune()
 
 WAIT = 5
@@ -105,7 +97,7 @@ MQTT_USER      = ""
 MQTT_PASSWORD  = ""
 
 # Tópicos para envio e recebimento de dados
-MQTT_MEASUREMENT = "cow8/measurement"
+MQTT_MEASUREMENTS = "cow8/measurement"
 MQTT_STATUS = "cow8/status"
 MQTT_COMMANDS = "cow8/commands"
 

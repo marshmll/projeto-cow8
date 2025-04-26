@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
 from datetime import datetime, timedelta
-from sqlalchemy import extract, func, distinct, update
+from sqlalchemy import extract, func, distinct, update, case
 import locale
 import bcrypt
 import json
@@ -213,6 +213,138 @@ def get_health_status():
         }
     })
 
+
+@api.route('/api/periodic_analysis', methods=['POST'])
+@login_required
+def periodic_analysis():
+    if current_user.status == "Banido":
+        return jsonify({"error": "Usuário banido"}), 403
+
+    data = request.get_json()
+    try:
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
+    except (KeyError, ValueError):
+        return jsonify({"error": "Datas inválidas. Use o formato YYYY-MM-DD"}), 400
+
+    if start_date > end_date:
+        return jsonify({"error": "Data inicial maior que data final"}), 400
+
+    db = get_db()
+
+    try:
+        # Pré-busca dos pesos no período para evitar múltiplos acessos no banco
+        weight_query = db.query(
+            func.avg(models.ControlePesagem.medicao_peso),
+            func.min(models.ControlePesagem.medicao_peso),
+            func.max(models.ControlePesagem.medicao_peso),
+            func.count(models.ControlePesagem.id_animal)
+        ).filter(
+            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+        ).first()
+
+        avg_weight, min_weight, max_weight, weight_count = weight_query or (0, 0, 0, 0)
+
+        # Contagem total de animais
+        total_animals = db.query(func.count(models.Animal.id)).scalar() or 0
+
+        # Contagem de animais abaixo de 90% do peso médio
+        underweight_count = db.query(
+            func.count(distinct(models.ControlePesagem.id_animal))
+        ).select_from(models.ControlePesagem).join(
+            models.Animal, models.Animal.id == models.ControlePesagem.id_animal
+        ).join(
+            models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
+        ).filter(
+            models.ControlePesagem.datahora_pesagem.between(start_date, end_date),
+            models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.9
+        ).scalar() or 0
+
+       # Tendências de peso
+        trend = db.query(
+            func.sum(
+                case(
+                    (models.ControlePesagem.medicao_peso > models.DadosAnimal.peso_medio * 1.05, 1),
+                    else_=0
+                )
+            ).label('gaining'),
+            func.sum(
+                case(
+                    (models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.95, 1),
+                    else_=0
+                )
+            ).label('losing'),
+            func.sum(
+                case(
+                    (models.ControlePesagem.medicao_peso.between(
+                        models.DadosAnimal.peso_medio * 0.95,
+                        models.DadosAnimal.peso_medio * 1.05
+                    ), 1),
+                    else_=0
+                )
+            ).label('stable')
+        ).select_from(models.ControlePesagem).join(
+            models.Animal, models.Animal.id == models.ControlePesagem.id_animal
+        ).join(
+            models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
+        ).filter(
+            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+        ).first()
+
+        # Distribuição por raças
+        breed_distribution = db.query(
+            models.DadosAnimal.raca,
+            func.count(models.Animal.id)
+        ).join(
+            models.Animal, models.Animal.id_dados_animal == models.DadosAnimal.id
+        ).group_by(models.DadosAnimal.raca).all()
+
+        # Uso das balanças
+        scale_usage = db.query(
+            models.Balanca.uid,
+            func.count(models.ControlePesagem.id_animal)
+        ).join(
+            models.ControlePesagem, models.ControlePesagem.uid_balanca == models.Balanca.uid
+        ).filter(
+            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+        ).group_by(models.Balanca.uid).all()
+
+        return jsonify({
+            "period": {
+                "start": start_date.strftime('%Y-%m-%d'),
+                "end": end_date.strftime('%Y-%m-%d'),
+                "days": (end_date - start_date).days + 1
+            },
+            "animals": {
+                "total": total_animals,
+                "underweight": underweight_count,
+                "underweight_percentage": round((underweight_count / total_animals * 100), 2) if total_animals else 0
+            },
+            "weight": {
+                "average": float(avg_weight) if avg_weight else 0,
+                "minimum": float(min_weight) if min_weight else 0,
+                "maximum": float(max_weight) if max_weight else 0,
+                "measurements": weight_count
+            },
+            "trends": {
+                "gaining": trend.gaining or 0,
+                "losing": trend.losing or 0,
+                "stable": trend.stable or 0
+            },
+            "breeds": [
+                {"name": breed, "count": count} for breed, count in breed_distribution
+            ],
+            "scales": [
+                {"uid": uid, "usage": usage_count} for uid, usage_count in scale_usage
+            ]
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.remove()
+
+
 @api.route('/api/users/all')
 @login_required
 def get_users():
@@ -324,8 +456,9 @@ def register_user():
 @api.route('/api/scales/all')
 @login_required
 def get_scales():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.status == "Banido":
+        flash("O usuário foi banido por tempo indeterminado.")
+        return redirect(url_for('auth.login'))
 
     db = get_db()
 
@@ -354,9 +487,10 @@ def del_scale(uid: str):
 @api.route('/api/scales/<uid>')
 @login_required
 def get_scale(uid: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
-
+    if current_user.status == "Banido":
+        flash("O usuário foi banido por tempo indeterminado.")
+        return redirect(url_for('auth.login'))
+    
     db = get_db()
 
     scale = db.query(models.Balanca).filter_by(uid=uid).first()
@@ -403,6 +537,10 @@ def register_scale():
 @api.route('/api/scales/<uid>/command/<command>')
 @login_required
 def scale_command(uid, command):
+    if current_user.status == "Banido":
+        flash("O usuário foi banido por tempo indeterminado.")
+        return redirect(url_for('auth.login'))
+
     data = {
         'uid': uid,
         'command': command
@@ -413,15 +551,15 @@ def scale_command(uid, command):
         stmt = (
             update(models.Balanca)
             .where(models.Balanca.uid == uid)
-            .values(ultima_calibragem=func.now())
+            .values(ultima_calibragem=func.current_timestamp())
         )
 
         db.execute(stmt)
         db.commit()
         db.remove()
 
-    j = json.dumps(data)
+    res = json.dumps(data)
 
-    current_app.extensions['mqtt'].publish('cow8/commands', j)
+    current_app.extensions['mqtt'].publish('cow8/commands', res)
 
     return jsonify(data)

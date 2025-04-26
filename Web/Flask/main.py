@@ -35,6 +35,10 @@ links_user = {
         'link': '/reports',
         'active': False
     },
+    'Balanças': {
+        'link': '/scales/list',
+        'active': False
+    }
 }
 
 def prepare_data():
@@ -99,9 +103,6 @@ def register_user():
 @main.route('/scales/list')
 @login_required
 def list_scales():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Acesso restrito.")
-
     data = prepare_data()
     data['links']['Balanças']['active'] = True
 

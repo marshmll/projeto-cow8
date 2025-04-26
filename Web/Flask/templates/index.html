@@ -22,6 +22,59 @@
 >
     <canvas class="min-h-[15rem]" id="means"></canvas>
 </article>
+<div class="flex items-center justify-between mb-4 flex-wrap">
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold mb-2">
+        Análise Periódica
+    </h2>
+    <div class="flex items-center gap-2 text-white">
+        <input
+            type="date"
+            id="start-date"
+            class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white"
+        />
+        <span class="text-gray-400">até</span>
+        <input
+            type="date"
+            id="end-date"
+            class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-white"
+        />
+        <button
+            id="analyze-btn"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+        >
+            Analisar
+        </button>
+    </div>
+</div>
+<article
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+    <div id="periodic-analysis-content">
+        <!-- Loading state -->
+        <div
+            class="flex justify-center items-center py-8"
+            id="loading-indicator"
+        >
+            <div class="loader"></div>
+            <span class="ml-2 text-gray-300">Carregando análise...</span>
+        </div>
+
+        <!-- Results will be inserted here -->
+    </div>
+</article>
+{% endblock %} {% block aside %}
+<div class="flex items-center justify-between mb-4">
+    <h2 class="text-gray-200 text-xl font-montserrat font-bold">
+        Resumo Mensal
+    </h2>
+</div>
+<article
+    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
+>
+    <div class="summary grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
+        <span class="loader"></span>
+    </div>
+</article>
 <div class="flex items-center justify-between mb-4">
     <h2 class="text-gray-200 text-xl font-montserrat font-bold">Outros</h2>
     <div
@@ -41,27 +94,6 @@
 >
     <canvas class="min-h-[15rem]" id="risk"></canvas>
 </article>
-{% endblock %} {% block aside %}
-<div class="flex items-center justify-between mb-4">
-    <h2 class="text-gray-200 text-xl font-montserrat font-bold">
-        Resumo Mensal
-    </h2>
-</div>
-<article
-    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
->
-    <div class="summary grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <span class="loader"></span>
-    </div>
-</article>
-<div class="flex items-center justify-between mb-4">
-    <h2 class="text-gray-200 text-xl font-montserrat font-bold">
-        Análise Periódica
-    </h2>
-</div>
-<article
-    class="bg-gray-800 p-4 shadow-md border border-gray-700 rounded-lg mb-6"
-></article>
 {% endblock %} {% block scripts %}
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

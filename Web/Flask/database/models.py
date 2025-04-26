@@ -14,7 +14,7 @@ class Usuario(Base, UserMixin):
     nome_completo : Mapped[str] = mapped_column(Text, nullable=False)
     email : Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     pfp_url : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.current_timestamp())
     status : Mapped[str] = mapped_column(String(50), nullable=False, default="Ativo")
     privilegios : Mapped[str] = mapped_column(String(50), nullable=False, default="Usuário")
     key : Mapped[str] = mapped_column(Text, nullable=False)
@@ -43,15 +43,11 @@ class Balanca(Base):
 
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
     uid : Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
-    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.current_timestamp())
     ultima_calibragem : Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     ultima_comunicacao : Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     status : Mapped[str] = mapped_column(String(50), nullable=False, default="Offline")
     observacoes : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-
-    pesagens : Mapped[Optional[Set["ControlePesagem"]]] = relationship(
-        back_populates="balanca", cascade="all, delete-orphan"
-    )
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -120,16 +116,12 @@ class ControlePesagem(Base):
     __tablename__ = "ControlePesagem"
 
     id_animal : Mapped[int] = mapped_column(ForeignKey("Animal.id"), nullable=False, primary_key=True)
-    id_balanca : Mapped[int] = mapped_column(ForeignKey("Balanca.id"), nullable=False, primary_key=True)
-    datahora_pesagem : Mapped[datetime] = mapped_column(DateTime, default=func.now(), nullable=False, primary_key=True)
+    uid_balanca : Mapped[str] = mapped_column(String(120), nullable=False, primary_key=True)
+    datahora_pesagem : Mapped[datetime] = mapped_column(DateTime, default=func.current_timestamp(), nullable=False, primary_key=True)
     medicao_peso : Mapped[float] = mapped_column(Numeric(7, 2), nullable=False)
     observacoes : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     animal : Mapped['Animal'] = relationship(
-        back_populates="pesagens",
-    )
-
-    balanca : Mapped['Balanca'] = relationship(
         back_populates="pesagens",
     )
 
@@ -139,6 +131,7 @@ class ControlePesagem(Base):
     def __repr__(self):
         return f"""ControlePesagem(
             id_animal={self.id_animal!r},
+            uid_balanca={self.uid_balanca!r},
             datahora_pesagem={self.datahora_pesagem!r},
             medicao_peso={self.medicao_peso!r},
             observacoes={self.observacoes!r}
