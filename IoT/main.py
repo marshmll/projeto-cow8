@@ -81,7 +81,7 @@ def warning_sound():
     
 def error_sound():
     buzzer.set_tune(error)
-    buzzer.set_tempo(100)
+    buzzer.set_tempo(170)
     buzzer.play_tune()
 
 WAIT = 5
