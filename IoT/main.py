@@ -97,7 +97,7 @@ MQTT_USER      = ""
 MQTT_PASSWORD  = ""
 
 # Tópicos para envio e recebimento de dados
-MQTT_MEASUREMENTS = "cow8/measurement"
+MQTT_MEASUREMENTS = "cow8/measurements"
 MQTT_STATUS = "cow8/status"
 MQTT_COMMANDS = "cow8/commands"
 
@@ -122,26 +122,26 @@ def handle_commands(topic, msg):
         print(f"Ill formed command received: {data}")
         return
     
-    if data['uid'] == MQTT_CLIENT_ID:
+    if data['uid'] == MQTT_CLIENT_ID or data['uid'] == 'ffff':
         if data['command'] == 'TARE':
             print('Command received: TARE')
             info_sound()
             hx.tare(10)
         elif data['command'] == 'DISABLE':
             print('Command received: DISABLE')
-            info_sound()
+            warning_sound()
             global disable
             disable = True
             send_status('Desabilitado')
         elif data['command'] == 'ENABLE':
             print('Command received: ENABLE')
-            info_sound()
+            startup_sound()
             global disable
             disable = False
             send_status('Online')
         elif data['command'] == 'POWEROFF':
             print('Command received: POWEROFF')
-            info_sound()
+            error_sound()
             global disable
             disable = False
             send_status('Offline')
@@ -173,6 +173,7 @@ def do_connect_wifi(retries=3):
                 sleep(1)
 
             print("\nConectado à internet!")
+            info_sound()
             return
         except Exception as e:
             print("Erro na conexão Wi-FI, tentando novamente...")
@@ -200,6 +201,7 @@ def do_connect_mqtt(retries=3):
 
             print("Conectado!")
             send_status('Online')
+            info_sound()
             return
         except Exception as e:
             print("Erro na conexão com o MQTT, tentando novamente...")

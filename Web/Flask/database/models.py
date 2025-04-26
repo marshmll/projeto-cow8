@@ -20,7 +20,9 @@ class Usuario(Base, UserMixin):
     key : Mapped[str] = mapped_column(Text, nullable=False)
     salt : Mapped[str] = mapped_column(Text, nullable=False)
 
-    __table_args__ = (UniqueConstraint("username", "email", name="user_identity"),)
+    __table_args__ = (
+        UniqueConstraint("username", name="uq_username"),
+    )
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

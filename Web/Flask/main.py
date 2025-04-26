@@ -12,10 +12,6 @@ links_admin = {
         'link': '/',
         'active': False
     },
-    'Relatórios': {
-        'link': '/reports',
-        'active': False
-    },
     'Usuários': {
         'link': '/users/list',
         'active': False
@@ -29,10 +25,6 @@ links_admin = {
 links_user = {
     'Geral': {
         'link': '/',
-        'active': False
-    },
-    'Relatórios': {
-        'link': '/reports',
         'active': False
     },
     'Balanças': {

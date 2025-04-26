@@ -147,7 +147,7 @@ def create_app():
         if not mqtt_client.connect():
             app.logger.error("Failed to connect to MQTT")
 
-        mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurement', record_measurement)
+        mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurements', record_measurement)
         mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', scale_status_refresh)
 
     # @app.teardown_appcontext

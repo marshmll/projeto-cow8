@@ -1,7 +1,7 @@
-import { openModal } from "../../modal.js";
-import { showScaleDetails } from "./scale_details.js";
-import { showScaleCommands } from "./scale_commands.js";
-import { showScaleBroadcastCommands } from "./scale_broadcast.js";
+import { openModal } from "../modal.js";
+import { showScaleDetails } from "./restrict/scale_details.js";
+import { showScaleCommands } from "./restrict/scale_commands.js";
+import { showScaleBroadcastCommands } from "./restrict/scale_broadcast.js";
 
 // Cache DOM elements
 const scalesList = document.querySelector(".scales-list");
@@ -73,11 +73,6 @@ function createScaleListItem(scale) {
                     scale.uid
                 }" uid="${scale.uid}">
                     <i class="fa-solid fa-terminal"></i>
-                </button>
-                <button class="btn-delete w-6 h-6 bg-red-500 rounded cursor-pointer hover:scale-105 transition-transform duration-200" title="Deletar Balança ${
-                    scale.uid
-                }" uid="${scale.uid}">
-                    <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
         </li>

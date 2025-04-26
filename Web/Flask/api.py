@@ -4,6 +4,7 @@ from database.database import get_db
 from database import models
 from datetime import datetime, timedelta
 from sqlalchemy import extract, func, distinct, update, case
+from sqlalchemy.exc import IntegrityError
 import locale
 import bcrypt
 import json
@@ -297,8 +298,11 @@ def periodic_analysis():
 
     data = request.get_json()
     try:
-        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
+        # Parse dates and include the full end date by setting time to 23:59:59
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+        start_datetime = datetime.combine(start_date, datetime.min.time()) # Set to start of day
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+        end_datetime = datetime.combine(end_date, datetime.max.time())  # Set to end of day
     except (KeyError, ValueError):
         return jsonify({"error": "Datas inválidas. Use o formato YYYY-MM-DD"}), 400
 
@@ -315,7 +319,8 @@ def periodic_analysis():
             func.max(models.ControlePesagem.medicao_peso),
             func.count(models.ControlePesagem.id_animal)
         ).filter(
-            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+            models.ControlePesagem.datahora_pesagem >= start_datetime,
+            models.ControlePesagem.datahora_pesagem <= end_datetime  # Use the end_datetime with time component
         ).first()
 
         avg_weight, min_weight, max_weight, weight_count = weight_query or (0, 0, 0, 0)
@@ -331,11 +336,12 @@ def periodic_analysis():
         ).join(
             models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
         ).filter(
-            models.ControlePesagem.datahora_pesagem.between(start_date, end_date),
+            models.ControlePesagem.datahora_pesagem >= start_datetime,
+            models.ControlePesagem.datahora_pesagem <= end_datetime,
             models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.9
         ).scalar() or 0
 
-       # Tendências de peso
+        # Tendências de peso
         trend = db.query(
             func.sum(
                 case(
@@ -363,7 +369,8 @@ def periodic_analysis():
         ).join(
             models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
         ).filter(
-            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+            models.ControlePesagem.datahora_pesagem >= start_datetime,
+            models.ControlePesagem.datahora_pesagem <= end_datetime
         ).first()
 
         # Distribuição por raças
@@ -381,14 +388,15 @@ def periodic_analysis():
         ).join(
             models.ControlePesagem, models.ControlePesagem.uid_balanca == models.Balanca.uid
         ).filter(
-            models.ControlePesagem.datahora_pesagem.between(start_date, end_date)
+            models.ControlePesagem.datahora_pesagem >= start_datetime,
+            models.ControlePesagem.datahora_pesagem <= end_datetime
         ).group_by(models.Balanca.uid).all()
 
         return jsonify({
             "period": {
-                "start": start_date.strftime('%Y-%m-%d'),
-                "end": end_date.strftime('%Y-%m-%d'),
-                "days": (end_date - start_date).days + 1
+                "start": start_datetime.strftime('%Y-%m-%d'),
+                "end": end_datetime.strftime('%Y-%m-%d'),
+                "days": (end_datetime - start_datetime).days + 1
             },
             "animals": {
                 "total": total_animals,
@@ -431,6 +439,81 @@ def get_users():
     users = [user.as_dict() for user in db.query(models.Usuario).filter(models.Usuario.username != "admin").all()]
     db.remove()
     return jsonify(users)
+
+@api.route('/api/users/<username>')
+@login_required
+def get_user(username: str):
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    db = get_db()
+
+    user = db.query(models.Usuario).filter_by(username=username).first()
+    db.remove()
+    return jsonify(user.as_dict())
+
+@api.route('/api/users/me')
+@login_required
+def get_me():
+    return jsonify(current_user.as_dict())
+
+@api.route('/api/users/update/<username>', methods=['POST'])
+def update_user(username: str):
+    if current_user.privilegios != "Administrador":
+        abort(401, description="Permissões insuficientes.")
+
+    db = get_db()
+    data = request.get_json()
+
+    user = db.query(models.Usuario).filter_by(username=username).first()
+    if not user:
+        return jsonify("O usuário não existe no banco de dados."), 404
+
+    # Check for username conflict (if changing username)
+    if 'username' in data and data['username'] != username:
+        existing_user = db.query(models.Usuario).filter_by(username=data['username']).first()
+        if existing_user:
+            return jsonify("Este username já está em uso."), 409
+
+    # Check for email conflict (if changing email)
+    if 'email' in data and data['email'] != user.email:
+        if data['email'] is not None:  # Only check if email is being set
+            existing = db.query(models.Usuario).filter_by(email=data['email']).first()
+            if existing:
+                return jsonify("Este email já está em uso"), 409
+
+    # Update non-password fields
+    if 'username' in data:
+        user.username = data['username']
+    if 'nome_completo' in data:
+        user.nome_completo = data['nome_completo']
+    if 'email' in data:
+        user.email = data['email']
+    if 'pfp_url' in data:
+        user.pfp_url = data['pfp_url']
+
+    # Update password (if provided)
+    if 'new_password' in data and data['new_password']:
+        salt = bcrypt.gensalt(rounds=12)
+        salt_str = b64encode(salt).decode('utf-8')
+        key = bcrypt.kdf(
+            password=data['new_password'].encode(),
+            salt=salt,
+            desired_key_bytes=32,
+            rounds=100
+        )
+        key_str = b64encode(key).decode('utf-8')
+        user.key = key_str
+        user.salt = salt_str
+
+    try:
+        db.commit()
+        return jsonify(user.as_dict())
+    except IntegrityError as e:
+        db.rollback()
+        return jsonify({"error": "Conflito de dados únicos (username/email já existe)"}), 409
+    finally:
+        db.remove()
 
 @api.route('/api/users/ban/<username>')
 def ban_user(username: str):
