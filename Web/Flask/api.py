@@ -54,63 +54,89 @@ def get_health_metrics():
     current_year = datetime.now().year
     db = get_db()
     
-    # 1. Consulta animais com peso abaixo de 90% da média da raça por mês
-    underweight_animals = db.query(
-        extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
-        func.count(distinct(models.ControlePesagem.id_animal)).label('count')
-    ).join(
-        models.Animal, models.Animal.id == models.ControlePesagem.id_animal
-    ).join(
-        models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
-    ).filter(
-        extract('year', models.ControlePesagem.datahora_pesagem) == current_year,
-        models.ControlePesagem.medicao_peso < (models.DadosAnimal.peso_medio * 0.9)
-    ).group_by(
-        extract('month', models.ControlePesagem.datahora_pesagem)
-    ).all()
+    try:
+        # 1. Subquery para a última pesagem de cada animal em cada mês
+        last_weight_subq = db.query(
+            models.ControlePesagem.id_animal,
+            extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
+            func.max(models.ControlePesagem.datahora_pesagem).label('last_date')
+        ).filter(
+            extract('year', models.ControlePesagem.datahora_pesagem) == current_year
+        ).group_by(
+            models.ControlePesagem.id_animal,
+            extract('month', models.ControlePesagem.datahora_pesagem)
+        ).subquery()
 
-    # 2. Consulta animais com perda de peso entre pesagens consecutivas
-    weight_loss_subquery = db.query(
-        models.ControlePesagem.id_animal,
-        extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
-        (models.ControlePesagem.medicao_peso - func.lag(models.ControlePesagem.medicao_peso).over(
-            partition_by=models.ControlePesagem.id_animal,
-            order_by=models.ControlePesagem.datahora_pesagem
-        )).label('weight_diff')
-    ).filter(
-        extract('year', models.ControlePesagem.datahora_pesagem) == current_year
-    ).subquery()
+        # 2. Junta a última pesagem com o peso médio da raça
+        last_weights = db.query(
+            last_weight_subq.c.id_animal,
+            last_weight_subq.c.month,
+            models.ControlePesagem.medicao_peso,
+            models.DadosAnimal.peso_medio
+        ).join(
+            models.ControlePesagem,
+            (models.ControlePesagem.id_animal == last_weight_subq.c.id_animal) &
+            (models.ControlePesagem.datahora_pesagem == last_weight_subq.c.last_date)
+        ).join(
+            models.Animal, models.Animal.id == models.ControlePesagem.id_animal
+        ).join(
+            models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
+        ).all()
 
-    weight_loss_animals = db.query(
-        weight_loss_subquery.c.month,
-        func.count(distinct(weight_loss_subquery.c.id_animal)).label('count')
-    ).filter(
-        weight_loss_subquery.c.weight_diff < 0
-    ).group_by(
-        weight_loss_subquery.c.month
-    ).all()
+        # Organiza animais abaixo do peso
+        underweight_by_month = {}
+        for lw in last_weights:
+            medicao_peso = float(lw.medicao_peso) if lw.medicao_peso is not None else None
+            peso_medio = float(lw.peso_medio) if lw.peso_medio is not None else None
 
-    # Combina os resultados
-    health_metrics = []
-    for month in range(1, 13):
-        # Animais abaixo do peso
-        underweight = next((item.count for item in underweight_animals if item.month == month), 0)
-        
-        # Animais com perda de peso
-        weight_loss = next((item.count for item in weight_loss_animals if item.month == month), 0)
-        
-        # Total de animais com problemas
-        total = underweight + weight_loss
-        
-        health_metrics.append({
-            'month': month,
-            'month_name': datetime(current_year, month, 1).strftime('%B'),
-            'underweight_count': underweight,
-            'weight_loss_count': weight_loss,
-            'total_at_risk': total
-        })
-    db.remove()
-    return jsonify(health_metrics)
+            if peso_medio and medicao_peso and medicao_peso < peso_medio * 0.9:
+                underweight_by_month.setdefault(int(lw.month), set()).add(lw.id_animal)
+
+        # 3. Subquery para detectar perda de peso dentro do mês
+        weight_change_subq = db.query(
+            models.ControlePesagem.id_animal,
+            extract('month', models.ControlePesagem.datahora_pesagem).label('month'),
+            (models.ControlePesagem.medicao_peso - func.lag(models.ControlePesagem.medicao_peso).over(
+                partition_by=[
+                    models.ControlePesagem.id_animal,
+                    extract('month', models.ControlePesagem.datahora_pesagem)
+                ],
+                order_by=models.ControlePesagem.datahora_pesagem
+            )).label('weight_diff')
+        ).filter(
+            extract('year', models.ControlePesagem.datahora_pesagem) == current_year
+        ).subquery()
+
+        weight_loss_by_month = {}
+        rows = db.query(weight_change_subq).filter(weight_change_subq.c.weight_diff < 0).all()
+
+        for row in rows:
+            weight_loss_by_month.setdefault(int(row.month), set()).add(row.id_animal)
+
+        # 4. Combina sem duplicar
+        health_metrics = []
+        for month in range(1, 13):
+            underweight_animals = underweight_by_month.get(month, set())
+            weight_loss_animals = weight_loss_by_month.get(month, set())
+
+            # Combina sem repetir animal
+            total_at_risk_animals = underweight_animals.union(weight_loss_animals)
+
+            health_metrics.append({
+                'month': month,
+                'month_name': datetime(current_year, month, 1).strftime('%B'),
+                'underweight_count': len(underweight_animals),
+                'weight_loss_count': len(weight_loss_animals),
+                'total_at_risk': len(total_at_risk_animals)
+            })
+
+        return jsonify(health_metrics)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.remove()
+
 
 @api.route('/api/health_status')
 @login_required
@@ -118,100 +144,149 @@ def get_health_status():
     if current_user.status == "Banido":
         flash("O usuário foi banido por tempo indeterminado.")
         return redirect(url_for('auth.login'))
-    
-    current_year = datetime.now().year
+
     db = get_db()
+    try:
+        today = datetime.now()
+        current_year = today.year
+        current_month = today.month
 
-    animals = db.query(models.Animal).all()
-    total_animals = len(animals)
-    
-    if total_animals == 0:
-        db.remove()
-        return jsonify({"health_status": 100, "message": "Nenhum animal cadastrado"})
-    
-    healthy = warning = critical = 0
+        start_of_month = datetime(current_year, current_month, 1)
+        if current_month == 12:
+            start_of_next_month = datetime(current_year + 1, 1, 1)
+        else:
+            start_of_next_month = datetime(current_year, current_month + 1, 1)
 
-    for animal in animals:
-        # Obter todas as pesagens do ano atual
-        weights = db.query(models.ControlePesagem)\
-            .filter(models.ControlePesagem.id_animal == animal.id)\
-            .filter(extract('year', models.ControlePesagem.datahora_pesagem) == current_year)\
-            .order_by(models.ControlePesagem.datahora_pesagem.asc())\
-            .all()
-        
-        if not weights:
-            continue
-            
-        # Converter para float para evitar problemas com Decimal
-        first_weight = float(weights[0].medicao_peso)
-        last_weight = float(weights[-1].medicao_peso)
-        
-        breed_data = db.query(models.DadosAnimal)\
-            .filter(models.DadosAnimal.id == animal.id_dados_animal)\
-            .first()
-        
-        if not breed_data:
-            continue
-            
-        # Converter peso médio para float
-        expected_final_weight = float(breed_data.peso_medio)
-        
-        # 1. Calcular progresso esperado (considerando crescimento linear durante o ano)
-        months_passed = (datetime.now().month - weights[0].datahora_pesagem.month) or 1
-        expected_progress = expected_final_weight - first_weight
-        expected_weight = first_weight + (expected_progress * (months_passed/12))
-        
-        # 2. Análise de tendência (últimos 3 meses)
-        trend = 0
-        three_months_ago = datetime.now() - timedelta(days=90)
-        last_months_weights = [
-            float(w.medicao_peso) for w in weights 
-            if w.datahora_pesagem >= three_months_ago
-        ]
-        
-        if len(last_months_weights) >= 2:
-            initial_weight = last_months_weights[0]
-            final_weight = last_months_weights[-1]
-            trend = ((final_weight - initial_weight) / initial_weight) * 100  # % de variação
-        
-        # 3. Classificação
-        weight_ratio = last_weight / expected_weight
-        
-        if weight_ratio >= 0.95 and trend >= -1:  # Saudável
-            healthy += 1
-        elif weight_ratio >= 0.85 or (weight_ratio >= 0.9 and trend >= -3):  # Em alerta
-            warning += 1
-        else:  # Crítico
-            critical += 1
-    
-    # Calcular porcentagem de saúde
-    health_score = (
-        (healthy * 1.0 + warning * 0.6 + critical * 0.2) / 
-        max(1, total_animals) * 100  # Evita divisão por zero
-    )
-    
-    db.remove()
+        # Subquery: primeira pesagem do mês
+        first_weights_subq = db.query(
+            models.ControlePesagem.id_animal,
+            func.min(models.ControlePesagem.datahora_pesagem).label('first_date')
+        ).filter(
+            models.ControlePesagem.datahora_pesagem >= start_of_month,
+            models.ControlePesagem.datahora_pesagem < start_of_next_month
+        ).group_by(
+            models.ControlePesagem.id_animal
+        ).subquery()
 
-    return jsonify({
-        "health_status": round(health_score, 2),
-        "healthy_animals": healthy,
-        "warning_animals": warning,
-        "critical_animals": critical,
-        "total_animals": total_animals,
-        "metrics": {
-            "calculation_date": datetime.now().isoformat(),
-            "weight_ratio_thresholds": {
-                "healthy": "≥95%",
-                "warning": "85-94%",
-                "critical": "<85%"
+        # Subquery: última pesagem do mês
+        last_weights_subq = db.query(
+            models.ControlePesagem.id_animal,
+            func.max(models.ControlePesagem.datahora_pesagem).label('last_date')
+        ).filter(
+            models.ControlePesagem.datahora_pesagem >= start_of_month,
+            models.ControlePesagem.datahora_pesagem < start_of_next_month
+        ).group_by(
+            models.ControlePesagem.id_animal
+        ).subquery()
+
+        # Recuperar pesos associados
+        first_weights = db.query(
+            models.ControlePesagem.id_animal,
+            models.ControlePesagem.medicao_peso,
+            models.ControlePesagem.datahora_pesagem
+        ).join(
+            first_weights_subq,
+            (models.ControlePesagem.id_animal == first_weights_subq.c.id_animal) &
+            (models.ControlePesagem.datahora_pesagem == first_weights_subq.c.first_date)
+        ).all()
+
+        last_weights = db.query(
+            models.ControlePesagem.id_animal,
+            models.ControlePesagem.medicao_peso,
+            models.ControlePesagem.datahora_pesagem
+        ).join(
+            last_weights_subq,
+            (models.ControlePesagem.id_animal == last_weights_subq.c.id_animal) &
+            (models.ControlePesagem.datahora_pesagem == last_weights_subq.c.last_date)
+        ).all()
+
+        first_map = {fw.id_animal: (float(fw.medicao_peso), fw.datahora_pesagem) for fw in first_weights}
+        last_map = {lw.id_animal: (float(lw.medicao_peso), lw.datahora_pesagem) for lw in last_weights}
+
+        # Pega dados dos animais
+        animals_data = db.query(
+            models.Animal.id,
+            models.DadosAnimal.peso_medio
+        ).join(
+            models.DadosAnimal, models.Animal.id_dados_animal == models.DadosAnimal.id
+        ).all()
+
+        if not animals_data:
+            return jsonify({"health_status": 100, "message": "Nenhum animal cadastrado"})
+
+        healthy = warning = critical = no_data = 0
+
+        for animal in animals_data:
+            first_info = first_map.get(animal.id)
+            last_info = last_map.get(animal.id)
+
+            if not first_info or not last_info or animal.peso_medio is None:
+                no_data += 1
+                continue
+
+            first_weight, first_date = first_info
+            last_weight, last_date = last_info
+            expected_final_weight = float(animal.peso_medio)
+
+            # Cálculo de tempo real passado no mês
+            days_in_month = (start_of_next_month - start_of_month).days
+            days_passed = (last_date - first_date).days or 1  # evita zero
+
+            expected_progress = expected_final_weight - first_weight
+            expected_weight = first_weight + (expected_progress * (days_passed / days_in_month))
+
+            weight_ratio = last_weight / expected_weight if expected_weight else 0
+
+            # Tendência (ganho ou perda no mês)
+            trend_percent = ((last_weight - first_weight) / first_weight) * 100 if first_weight else 0
+
+            # Classificação mais refinada
+            if weight_ratio >= 0.95 and trend_percent >= -1:
+                healthy += 1
+            elif weight_ratio >= 0.85 or (weight_ratio >= 0.9 and trend_percent >= -3):
+                warning += 1
+            else:
+                critical += 1
+
+        total_with_data = healthy + warning + critical
+
+        health_score = (
+            (healthy * 1.0 + warning * 0.6 + critical * 0.2) /
+            max(1, total_with_data) * 100
+        )
+
+        return jsonify({
+            "health_status": round(health_score, 2),
+            "healthy_animals": healthy,
+            "warning_animals": warning,
+            "critical_animals": critical,
+            "no_data_animals": no_data,
+            "total_animals": healthy + warning + critical + no_data,
+            "period": {
+                "year": current_year,
+                "month": current_month,
+                "start_date": start_of_month.strftime('%Y-%m-%d'),
+                "end_date": (start_of_next_month - timedelta(days=1)).strftime('%Y-%m-%d')
             },
-            "trend_thresholds": {
-                "healthy": "≥-1%",
-                "warning": "-1% to -3%",
-                "critical": "<-3%"
+            "metrics": {
+                "calculation_date": today.isoformat(),
+                "weight_ratio_thresholds": {
+                    "healthy": "≥95%",
+                    "warning": "85%-94%",
+                    "critical": "<85%"
+                },
+                "trend_thresholds": {
+                    "healthy": "≥-1%",
+                    "warning": "-1% to -3%",
+                    "critical": "<-3%"
+                }
             }
-        }
-    })
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.remove()
 
 
 @api.route('/api/periodic_analysis', methods=['POST'])
