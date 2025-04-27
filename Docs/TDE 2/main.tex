@@ -48,7 +48,7 @@ Dentre as alternativas presentes no mercado, o MVP Cow8 utiliza o framework fron
 
 \subsection{Análise Comparativa entre Frameworks Considerados}
 
-Os frameworks considerados para o desenvolvimento foram: \textbf{React.js, Bootstrap e Tailwind CSS}. Foram realizadas análises comparativas primordialmente imparciais sobre as vantagens e desvantagens de se usar cada framework baseadas em 4 pontos críticos: \textbf{Facilidade de uso, Customização, Performance e Integração com o Flask.}
+Os frameworks considerados para o desenvolvimento foram: \textbf{React.js, Bootstrap e Tailwind CSS}. Foram realizadas análises comparativas primordialmente imparciais sobre as vantagens e desvantagens de se usar cada framework, baseadas em 4 pontos críticos: \textbf{Facilidade de uso, Customização, Performance e Integração com o Flask.}
 
 \begin{table}[H]
 \centering
@@ -83,7 +83,7 @@ Tailwind CSS & Máxima & Poucos & Fácil \\
 \caption{Comparação de Performance}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Framework} & \textbf{Tamanho do Bundle} & \textbf{Renderização} & \textbf{Otimização} \\
+\textbf{Framework} & \textbf{Tam. Bundle} & \textbf{Renderização} & \textbf{Otimização} \\
 \midrule
 React & Grande & Client-side & Code-splitting necessário \\
 Bootstrap & Moderado & Server-side & PurgeCSS recomendado \\
@@ -129,7 +129,7 @@ O front-end do MVP Cow8 utiliza-se do framework Tailwind CSS. Existem diversos m
 
 \subsection{Estrutura de Diretórios}
 
-O projeto segue uma estrutura de diretórios simples, contando com os Blueprints Flask, módulos de banco de dados e MQTT próprios e \textit{Shell Scripts} utilizados para automatizar o procedimento de inicialização limpa (pois o projeto está sendo desenvolvido em um container Docker, o qual pode ocasionar corrupções).
+O projeto segue uma estrutura de diretórios simples, contando com os Blueprints Flask, módulos de banco de dados e MQTT próprios e \textit{Shell Scripts} utilizados para automatizar o procedimento de inicialização limpa (pois o projeto está sendo desenvolvido em um container Docker, o qual pode ocasionar corrupções em certas situações).
 
 O arquivo \texttt{requirements.txt} lista todas as dependências de bibliotecas Python do projeto, sendo facilmente instaladas recursivamente no desenvolvimento com o uso de um \textit{Virtual Environment} (venv).
 
@@ -151,6 +151,47 @@ Além disso, os diretórios \texttt{static/} e \texttt{templates/} são os diret
 \end{verbatim}
 
 \subsection{Template base e configuração do Tailwind}
+
+Para tornar o Tailwind CSS disponível para o projeto, foi optado por utilizar a versão CDN (\textit{Content Delivery Network}), que pode ser facilmente incluída via tag HTML \texttt{<script>} no final da tag \texttt{<body>} ou na tag \texttt{<head>}. Esta versão não é indicada para produção, mas é uma ótima ferramenta para agilizar o processo de desenvolvimento da aplicação web sem se preocupar com as configurações dos módulos NPM (\textit{Node Package Modules}), os quais, todavia, são os indicados para um ambiente de produção.
+
+A melhor solução neste caso (quando possível) foi incluir o CDN no template \texttt{base.html}, o qual serve de base para todas as páginas do projeto (exceto a de login) e, portanto, já disponibiliza o Tailwind para todas as páginas automaticamente.
+
+\subsection{Hospedagem do Flask com Docker}
+
+A fim de isolar o ambiente, tornando-o facilmente compartilhável e removendo a necessidade de configuração manual do projeto, foi utilizado o \textbf{Docker Compose}.
+
+Em um arquivo \texttt{docker-compose.yaml}, foram definidas configurações de hospedagem, servidores DNS e verificação de integridade. Isto torna o ambiente isolável e menos suscetível a erros causados por falhas de configuração do ambiente de desenvolvimento.
+
+Outro critério de optar por utilizar Docker foi a integração com um banco de dados \textbf{MySQL}, que também foi conteinerizado e configurado para rodar scripts SQL na inicialização para, por exemplo, inserir dados fictícios (\textit{dummy data}) a fim de realizar testes de usabilidade e funcionalidade e implementar as features de acordo. Com ambos os ambientes no mesmo container, a execução das dependências de cada um se torna extremamente trivial.
+
+\subsection{Árvore de Páginas}
+
+O projeto apresenta uma quantidade reduzida de páginas que objetivam fornecer a melhor experiência de usuário e fornecer todas as funcionalidades mais importantes no quesito de gerenciamento de acesso e de módulos de balança, bem como ferramentas de análise de dados com base em cálculos estatísticos dos dados das pesagens e ferramentas de controle remoto dos módulos. O projeto pode ser facilmente estendido e novas features implementadas, sem quebrar a compatibilidade com as atualmente disponíveis.
+
+\begin{verbatim}
+    /
+    |- /login
+    |- /scales
+    |- | - /list
+    |- | - /register
+    |- /users
+    |- | - /list
+    |- | - /register
+
+\end{verbatim}
+
+\begin{itemize}
+    \item \textbf{Endpoint \texttt{/}}: É o endpoint de dashbard do projeto, onde resumos mensais, análise de tendências, análises periódicas, análise com base em raças e uso dos módulos a partir dos dados em banco são apresentados, contando com gráficos visualmente agradáveis e legíveis gerados automaticamente com a biblioteca \textit{Chart.js}.
+    \item \textbf{Endpoint \texttt{/login}}: É o endpoint de login no sistema via usuário ou email e a respectiva senha. O projeto conta com sessões, portanto, todas as outras páginas (exceto esta) somente são acessíveis se o usuário estiver logado.
+    \item \textbf{Endpoint \texttt{/scales}}: Reservado.
+    \item \textbf{Endpoint \texttt{/scales/list}}: É o endpoint de listagem de módulos de pesagem cadastrados no sistema. Através deste endpoint, quaisquer usuários podem ter acesso aos dados dos módulos, bem como verificar seus status em tempo real, além de métricas como a última data de tara e possíveis erros, por exemplo. \textit{O acesso a esta página é parcial, contando com algumas funcionalidades restritas as quais apenas o administrador está autorizado a utilizar.}
+     \item \textbf{Endpoint \texttt{/scales/register}}: É o endpoint de cadastro de novos módulos de pesagem no sistema. \textit{Apenas o adminstrador tem acesso a esta página.}
+     \item \textbf{Endpoint \texttt{/users}}: Reservado.
+     \item \textbf{Endpoint \texttt{/users/list}}: É o endpoint de listagem de usuários cadastrados no sistema, contando com funcionalidades de banimento, deleção, verificação e alteração de dados de usuários. \textit{Apenas o administrador tem acesso a esta página.}
+     \item \textbf{Endpoint \texttt{/users/register}}: É o endpoint de cadastro de novos usuários no sistema. \textit{Apenas o administrador tem acesso a esta página.}
+\end{itemize}
+
+\textbf{* É importante salientar que, com base nas permissões de cada usuário, o design de cada uma das páginas pode variar sucintamente.}
 
 \section{Demonstração do Design}
 

@@ -150,11 +150,11 @@ function setupCommandButtons(scaleUid) {
             try {
                 const response = await sendScaleCommand(scaleUid, command);
                 feedback.querySelector("p").textContent =
-                    response.message || "Comando executado com sucesso";
+                    response.message || "Comando enviado com sucesso!";
 
                 // Refresh scale status if needed
                 if (["enable", "disable", "power_off"].includes(command)) {
-                    setTimeout(refreshScaleStatus, 1500);
+                    setTimeout(refreshScaleStatus, 2000);
                 }
             } catch (error) {
                 feedback.querySelector(
