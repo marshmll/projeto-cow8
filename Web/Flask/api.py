@@ -9,15 +9,15 @@ import locale
 import bcrypt
 import json
 from base64 import b64encode
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 api = Blueprint('api', __name__)
 
 @api.route('/api/means')
 @login_required
 def get_means():
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
     # Consulta para obter o peso médio por mês
@@ -48,8 +48,8 @@ def get_means():
 @api.route('/api/health_metrics')
 @login_required
 def get_health_metrics():
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
     current_year = datetime.now().year
@@ -134,7 +134,7 @@ def get_health_metrics():
         return jsonify(health_metrics)
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     finally:
         db.remove()
 
@@ -142,8 +142,8 @@ def get_health_metrics():
 @api.route('/api/health_status')
 @login_required
 def get_health_status():
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
     db = get_db()
@@ -213,7 +213,7 @@ def get_health_status():
         ).all()
 
         if not animals_data:
-            return jsonify({"health_status": 100, "message": "Nenhum animal cadastrado"})
+            return jsonify({'health_status': 100, 'message': 'Nenhum animal cadastrado'})
 
         healthy = warning = critical = no_data = 0
 
@@ -257,35 +257,35 @@ def get_health_status():
         )
 
         return jsonify({
-            "health_status": round(health_score, 2),
-            "healthy_animals": healthy,
-            "warning_animals": warning,
-            "critical_animals": critical,
-            "no_data_animals": no_data,
-            "total_animals": healthy + warning + critical + no_data,
-            "period": {
-                "year": current_year,
-                "month": current_month,
-                "start_date": start_of_month.strftime('%Y-%m-%d'),
-                "end_date": (start_of_next_month - timedelta(days=1)).strftime('%Y-%m-%d')
+            'health_status': round(health_score, 2),
+            'healthy_animals': healthy,
+            'warning_animals': warning,
+            'critical_animals': critical,
+            'no_data_animals': no_data,
+            'total_animals': healthy + warning + critical + no_data,
+            'period': {
+                'year': current_year,
+                'month': current_month,
+                'start_date': start_of_month.strftime('%Y-%m-%d'),
+                'end_date': (start_of_next_month - timedelta(days=1)).strftime('%Y-%m-%d')
             },
-            "metrics": {
-                "calculation_date": today.isoformat(),
-                "weight_ratio_thresholds": {
-                    "healthy": "≥95%",
-                    "warning": "85%-94%",
-                    "critical": "<85%"
+            'metrics': {
+                'calculation_date': today.isoformat(),
+                'weight_ratio_thresholds': {
+                    'healthy': '≥95%',
+                    'warning': '85%-94%',
+                    'critical': '<85%'
                 },
-                "trend_thresholds": {
-                    "healthy": "≥-1%",
-                    "warning": "-1% to -3%",
-                    "critical": "<-3%"
+                'trend_thresholds': {
+                    'healthy': '≥-1%',
+                    'warning': '-1% to -3%',
+                    'critical': '<-3%'
                 }
             }
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     finally:
         db.remove()
 
@@ -293,8 +293,8 @@ def get_health_status():
 @api.route('/api/periodic_analysis', methods=['POST'])
 @login_required
 def periodic_analysis():
-    if current_user.status == "Banido":
-        return jsonify({"error": "Usuário banido"}), 403
+    if current_user.status == 'Banido':
+        return jsonify({'error': 'Usuário banido'}), 403
 
     data = request.get_json()
     try:
@@ -304,10 +304,10 @@ def periodic_analysis():
         end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
         end_datetime = datetime.combine(end_date, datetime.max.time())  # Set to end of day
     except (KeyError, ValueError):
-        return jsonify({"error": "Datas inválidas. Use o formato YYYY-MM-DD"}), 400
+        return jsonify({'error': 'Datas inválidas. Use o formato YYYY-MM-DD'}), 400
 
     if start_date > end_date:
-        return jsonify({"error": "Data inicial maior que data final"}), 400
+        return jsonify({'error': 'Data inicial maior que data final'}), 400
 
     db = get_db()
 
@@ -393,37 +393,37 @@ def periodic_analysis():
         ).group_by(models.Balanca.uid).all()
 
         return jsonify({
-            "period": {
-                "start": start_datetime.strftime('%Y-%m-%d'),
-                "end": end_datetime.strftime('%Y-%m-%d'),
-                "days": (end_datetime - start_datetime).days + 1
+            'period': {
+                'start': start_datetime.strftime('%Y-%m-%d'),
+                'end': end_datetime.strftime('%Y-%m-%d'),
+                'days': (end_datetime - start_datetime).days + 1
             },
-            "animals": {
-                "total": total_animals,
-                "underweight": underweight_count,
-                "underweight_percentage": round((underweight_count / total_animals * 100), 2) if total_animals else 0
+            'animals': {
+                'total': total_animals,
+                'underweight': underweight_count,
+                'underweight_percentage': round((underweight_count / total_animals * 100), 2) if total_animals else 0
             },
-            "weight": {
-                "average": float(avg_weight) if avg_weight else 0,
-                "minimum": float(min_weight) if min_weight else 0,
-                "maximum": float(max_weight) if max_weight else 0,
-                "measurements": weight_count
+            'weight': {
+                'average': float(avg_weight) if avg_weight else 0,
+                'minimum': float(min_weight) if min_weight else 0,
+                'maximum': float(max_weight) if max_weight else 0,
+                'measurements': weight_count
             },
-            "trends": {
-                "gaining": trend.gaining or 0,
-                "losing": trend.losing or 0,
-                "stable": trend.stable or 0
+            'trends': {
+                'gaining': trend.gaining or 0,
+                'losing': trend.losing or 0,
+                'stable': trend.stable or 0
             },
-            "breeds": [
-                {"name": breed, "count": count} for breed, count in breed_distribution
+            'breeds': [
+                {'name': breed, 'count': count} for breed, count in breed_distribution
             ],
-            "scales": [
-                {"uid": uid, "usage": usage_count} for uid, usage_count in scale_usage
+            'scales': [
+                {'uid': uid, 'usage': usage_count} for uid, usage_count in scale_usage
             ]
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({'error': str(e)}), 500
     finally:
         db.remove()
 
@@ -431,20 +431,20 @@ def periodic_analysis():
 @api.route('/api/users/all')
 @login_required
 def get_users():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
 
-    users = [user.as_dict() for user in db.query(models.Usuario).filter(models.Usuario.username != "admin").all()]
+    users = [user.as_dict() for user in db.query(models.Usuario).filter(models.Usuario.username != 'admin').all()]
     db.remove()
     return jsonify(users)
 
 @api.route('/api/users/<username>')
 @login_required
 def get_user(username: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
 
@@ -459,28 +459,28 @@ def get_me():
 
 @api.route('/api/users/update/<username>', methods=['POST'])
 def update_user(username: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
     data = request.get_json()
 
     user = db.query(models.Usuario).filter_by(username=username).first()
     if not user:
-        return jsonify("O usuário não existe no banco de dados."), 404
+        return jsonify('O usuário não existe no banco de dados.'), 404
 
     # Check for username conflict (if changing username)
     if 'username' in data and data['username'] != username:
         existing_user = db.query(models.Usuario).filter_by(username=data['username']).first()
         if existing_user:
-            return jsonify("Este username já está em uso."), 409
+            return jsonify('Este username já está em uso.'), 409
 
     # Check for email conflict (if changing email)
     if 'email' in data and data['email'] != user.email:
         if data['email'] is not None:  # Only check if email is being set
             existing = db.query(models.Usuario).filter_by(email=data['email']).first()
             if existing:
-                return jsonify("Este email já está em uso"), 409
+                return jsonify('Este email já está em uso'), 409
 
     # Update non-password fields
     if 'username' in data:
@@ -511,35 +511,35 @@ def update_user(username: str):
         return jsonify(user.as_dict())
     except IntegrityError as e:
         db.rollback()
-        return jsonify({"error": "Conflito de dados únicos (username/email já existe)"}), 409
+        return jsonify({'error': 'Conflito de dados únicos (username/email já existe)'}), 409
     finally:
         db.remove()
 
 @api.route('/api/users/ban/<username>')
 def ban_user(username: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
 
     user = db.query(models.Usuario).filter_by(username=username).first()
 
     if not user:
-        abort(404, description="O usuário nao existe no banco de dados.")
+        abort(404, description='O usuário nao existe no banco de dados.')
 
     stmt = ()
 
-    if (user.status == "Ativo"):
+    if (user.status == 'Ativo'):
         stmt = (
             update(models.Usuario)
             .where(models.Usuario.username == username)
-            .values(status="Banido")
+            .values(status='Banido')
         )
     else:
         stmt = (
             update(models.Usuario)
             .where(models.Usuario.username == username)
-            .values(status="Ativo")
+            .values(status='Ativo')
         )
 
     db.execute(stmt)
@@ -551,8 +551,8 @@ def ban_user(username: str):
 @api.route('/api/users/delete/<username>')
 @login_required
 def del_user(username: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
 
@@ -569,8 +569,8 @@ def del_user(username: str):
 @api.route('/api/users/register/', methods=['POST'])
 @login_required
 def register_user():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     fullname = request.form.get('fullname')
     username = request.form.get('username')
@@ -614,8 +614,8 @@ def register_user():
 @api.route('/api/scales/all')
 @login_required
 def get_scales():
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
     db = get_db()
@@ -627,8 +627,8 @@ def get_scales():
 @api.route('/api/scales/delete/<uid>', methods=['DELETE'])
 @login_required
 def del_scale(uid: str):
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     db = get_db()
 
@@ -645,8 +645,8 @@ def del_scale(uid: str):
 @api.route('/api/scales/<uid>')
 @login_required
 def get_scale(uid: str):
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
     
     db = get_db()
@@ -655,15 +655,15 @@ def get_scale(uid: str):
 
     db.remove()
     if not scale:
-        abort(404, message="A balança solicitada não existe.")
+        abort(404, message='A balança solicitada não existe.')
 
     return jsonify(scale.as_dict())
 
 @api.route('/api/scales/register/', methods=['POST'])
 @login_required
 def register_scale():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Permissões insuficientes.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Permissões insuficientes.')
 
     uid = request.form.get('uid')
     obs = request.form.get('obs')
@@ -681,7 +681,7 @@ def register_scale():
 
     db_scale = models.Balanca(
         uid=uid,
-        status="Offline",
+        status='Offline',
         observacoes=obs
     )
     
@@ -695,8 +695,8 @@ def register_scale():
 @api.route('/api/scales/<uid>/command/<command>')
 @login_required
 def scale_command(uid, command):
-    if current_user.status == "Banido":
-        flash("O usuário foi banido por tempo indeterminado.")
+    if current_user.status == 'Banido':
+        flash('O usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
     data = {
@@ -704,7 +704,7 @@ def scale_command(uid, command):
         'command': command
     }
 
-    if command == "TARE":
+    if command == 'TARE':
         db = get_db()
         stmt = (
             update(models.Balanca)
@@ -721,3 +721,15 @@ def scale_command(uid, command):
     current_app.extensions['mqtt'].publish('cow8/commands', res)
 
     return jsonify(data)
+
+@api.route('/api/chatbot/prompt/', methods=['POST'])
+@login_required
+def prompt_chatbot():
+    data = request.get_json()
+
+    if 'content' not in data:
+        return jsonify({'message': 'Invalid Payload.'}), 422
+
+    res = current_app.extensions['ai'].ask_about_data(data['content'])
+
+    return jsonify({'response': res})

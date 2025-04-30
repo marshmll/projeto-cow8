@@ -1,0 +1,191 @@
+{% extends "base_single.html" %} {% block head %}
+<title>Analista de Dados IA | MVP Cow8</title>
+<style>
+    /* Additional custom styles */
+    .message-user {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        border-radius: 18px 18px 4px 18px;
+    }
+    .message-ai {
+        background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+        border-radius: 18px 18px 18px 4px;
+    }
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: #9ca3af;
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        animation: bounce 1.5s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    .message-user,
+    .message-ai {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    pre code {
+        white-space: pre-wrap !important;
+        word-break: break-all !important;
+    }
+
+    /* Ensure messages don't overflow */
+    .message-content {
+        max-width: 100%;
+    }
+
+    @keyframes bounce {
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-5px);
+        }
+    }
+
+    /* Custom scrollbar for chat container */
+    #chat-messages::-webkit-scrollbar {
+        width: 8px;
+    }
+    #chat-messages::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Hide textarea scrollbar */
+    #user-input {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+    #user-input::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .chat-container {
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+        }
+        .message-content {
+            max-width: 90% !important;
+        }
+        .chat-header {
+            padding: 12px;
+        }
+        .input-area {
+            padding: 12px;
+        }
+    }
+</style>
+{% endblock %} {% block main %}
+<div
+    class="flex flex-col h-[calc(120vh-140px)] sm:h-[calc(120vh-160px)] w-full max-w-6xl mx-auto bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-xl chat-container"
+>
+    <!-- Chat header -->
+    <div
+        class="flex items-center p-4 border-b border-gray-700 bg-gray-800 chat-header"
+    >
+        <div
+            class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-3"
+        >
+            <i class="fas fa-robot text-white text-lg"></i>
+        </div>
+        <div>
+            <h2 class="text-white font-semibold">Analista de Dados IA</h2>
+            <p class="text-xs text-gray-400">
+                MVP Cow8 - Assistente Inteligente
+            </p>
+        </div>
+        <div class="ml-auto flex space-x-2">
+            <button
+                class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+            >
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat messages container -->
+    <div
+        id="chat-messages"
+        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gray-900/30 scrollbar-custom"
+    >
+        <!-- Welcome message -->
+        <div class="flex justify-start">
+            <div
+                class="message-ai text-white p-4 max-w-[85%] sm:max-w-[75%] shadow-md message-content"
+            >
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 mr-3 text-gray-400">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <p>
+                            Olá! Sou o assistente de análise de dados da Cow8.
+                            Posso ajudar você com:
+                        </p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1 text-sm">
+                            <li>Análise de dados e relatórios</li>
+                            <li>Visualizações e insights</li>
+                            <li>Processamento de informações</li>
+                        </ul>
+                        <p class="mt-2">Como posso ajudar você hoje?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="p-3 sm:p-4 border-t border-gray-700 bg-gray-800 input-area">
+        <form id="chat-form" class="flex gap-2 sm:gap-3 items-end">
+            <div class="flex-1 relative">
+                <textarea
+                    id="user-input"
+                    rows="1"
+                    placeholder="Digite sua mensagem..."
+                    class="w-full bg-gray-700 border border-gray-600 rounded-xl px-4 py-2 sm:py-3 pr-12 text-white focus:outline-none focus:border-blue-500 resize-none max-h-32 overflow-hidden"
+                    autocomplete="off"
+                ></textarea>
+                <button
+                    type="button"
+                    class="absolute right-3 bottom-2 sm:bottom-3 text-gray-400 hover:text-white"
+                >
+                    <i class="far fa-smile"></i>
+                </button>
+            </div>
+            <button
+                type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white p-2 sm:p-3 rounded-xl transition-colors duration-200 h-10 sm:h-12 w-10 sm:w-12 flex items-center justify-center"
+                title="Enviar mensagem"
+            >
+                <i class="fas fa-paper-plane text-sm sm:text-base"></i>
+            </button>
+        </form>
+        <p class="text-xs text-gray-500 mt-2 text-center">
+            MVP Cow8 pode cometer erros. Verifique informações importantes.
+        </p>
+    </div>
+</div>
+{% endblock %} {% block scripts %}
+<script type="module" src="/static/assets/scripts/pages/chatbot.js"></script>
+{% endblock %}

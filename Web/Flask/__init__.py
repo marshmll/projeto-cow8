@@ -1,22 +1,27 @@
 import logging
 from flask import Flask
 from flask_login import LoginManager
-from database.database import Base, engine, get_db
+from database.database import Base, engine, get_db, get_database_schema_as_sql
 from database.models import Usuario
 from database.callbacks import record_measurement, scale_status_refresh
 import bcrypt
 from .mqtt import MQTTClient
 from base64 import b64encode
 import os
+from dotenv import load_dotenv
+from ai import AI
 
 # Initialize DB schema
 Base.metadata.create_all(bind=engine)
 
+# Load dotenv
+load_dotenv()
+
 def configure_login_manager(app):
-    """Configure Flask-Login manager."""
+    '''Configure Flask-Login manager.'''
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
-    login_manager.login_message = "É necessário fazer login para acessar esta página."
+    login_manager.login_message = 'É necessário fazer login para acessar esta página.'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -28,7 +33,7 @@ def configure_login_manager(app):
             db.remove()
 
 def register_blueprints(app):
-    """Register all application blueprints."""
+    '''Register all application blueprints.'''
     from .auth import auth as auth_blueprint
     from .main import main as main_blueprint
     from .api import api as api_blueprint
@@ -38,7 +43,7 @@ def register_blueprints(app):
     app.register_blueprint(api_blueprint)
 
 def create_user(username, name, password, email=None, pfp_url=None, privileges='Usuário'):
-    """Helper to create a new user securely."""
+    '''Helper to create a new user securely.'''
     salt = bcrypt.gensalt(rounds=12)
     salt_str = b64encode(salt).decode('utf-8')
     key = bcrypt.kdf(password=password.encode(), salt=salt, desired_key_bytes=32, rounds=100)
@@ -55,7 +60,7 @@ def create_user(username, name, password, email=None, pfp_url=None, privileges='
     )
 
 def initialize_admin_user():
-    """Ensure admin user exists."""
+    '''Ensure admin user exists.'''
     db = get_db()
     try:
         if not db.query(Usuario).filter_by(username='admin').first():
@@ -68,12 +73,12 @@ def initialize_admin_user():
             db.add(admin)
             db.commit()
     except Exception as e:
-        logging.error(f"Failed to create admin user: {e}")
+        logging.error(f'Failed to create admin user: {e}')
     finally:
         db.remove()
 
 def initialize_regular_users():
-    """Ensure regular users exist."""
+    '''Ensure regular users exist.'''
     users = [
         {
             'username': 'renan',
@@ -121,13 +126,13 @@ def initialize_regular_users():
                 db.add(new_user)
         db.commit()
     except Exception as e:
-        logging.error(f"Failed to create regular users: {e}")
+        logging.error(f'Failed to create regular users: {e}')
     finally:
         db.remove()
     
 
 def create_app():
-    """Flask application factory."""
+    '''Flask application factory.'''
     app = Flask(__name__, static_folder='static')
     app.config['SECRET_KEY'] = 'a318704cff8cefa6b49509810c54e4424483201bf340eb6be53deedff42e2668'
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -139,16 +144,25 @@ def create_app():
     initialize_admin_user()
     initialize_regular_users()
 
-    # Only run MQTT client in the main reloader process
+    # Only run in the main reloader process
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
         mqtt_client = MQTTClient()
         app.extensions['mqtt'] = mqtt_client
 
         if not mqtt_client.connect():
-            app.logger.error("Failed to connect to MQTT")
+            app.logger.error('Failed to connect to MQTT')
 
         mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurements', record_measurement)
         mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', scale_status_refresh)
+
+        DEEPSEEK_KEY = os.getenv('DEEPSEEK_KEY')
+
+        if not DEEPSEEK_KEY:
+            app.logger.error('Failed to load DeepSeek API key.')
+
+        ai_client = AI(api_key=DEEPSEEK_KEY)
+
+        app.extensions['ai'] = ai_client
 
     # @app.teardown_appcontext
     # def shutdown_session(exception=None):

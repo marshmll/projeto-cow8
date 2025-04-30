@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
 import locale
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 main = Blueprint('main', __name__)
 
@@ -19,6 +19,10 @@ links_admin = {
     'Balanças': {
         'link': '/scales/list',
         'active': False
+    },
+    'Analista de Dados IA': {
+        'link': '/chatbot',
+        'active': False
     }
 }
 
@@ -29,6 +33,10 @@ links_user = {
     },
     'Balanças': {
         'link': '/scales/list',
+        'active': False
+    },
+    'Analista de Dados IA': {
+        'link': '/chatbot',
         'active': False
     }
 }
@@ -73,8 +81,8 @@ def reports():
 @main.route('/users/list')
 @login_required
 def list_users():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Acesso restrito.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Acesso restrito.')
 
     data = prepare_data()
     data['links']['Usuários']['active'] = True
@@ -84,8 +92,8 @@ def list_users():
 @main.route('/users/register')
 @login_required
 def register_user():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Acesso restrito.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Acesso restrito.')
 
     data = prepare_data()
     data['links']['Usuários']['active'] = True
@@ -104,10 +112,19 @@ def list_scales():
 @main.route('/scales/register')
 @login_required
 def register_scale():
-    if current_user.privilegios != "Administrador":
-        abort(401, description="Acesso restrito.")
+    if current_user.privilegios != 'Administrador':
+        abort(401, description='Acesso restrito.')
 
     data = prepare_data()
     data['links']['Balanças']['active'] = True
 
     return render_template('scale_register.html', data=data)
+
+
+@main.route('/chatbot')
+@login_required
+def chat_chatbot():
+    data = prepare_data()
+    data['links']['Analista de Dados IA']['active'] = True
+    
+    return render_template('chatbot.html', data=data)
