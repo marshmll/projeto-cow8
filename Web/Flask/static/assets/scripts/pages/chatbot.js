@@ -16,6 +16,18 @@ document.addEventListener("DOMContentLoaded", () => {
             '<h3 class="text-lg font-semibold mt-4 mb-2 text-wrap">$1</h3>'
         );
 
+        // Convert headers (##) to <h2>
+        content = content.replace(
+            /^##\s+(.*$)/gm,
+            '<h2 class="text-xl font-semibold mt-4 mb-2 text-wrap">$1</h3>'
+        );
+
+        // Convert headers (#) to <h1>
+        content = content.replace(
+            /^#\s+(.*$)/gm,
+            '<h1 class="text-2xl font-semibold mt-4 mb-2 text-wrap">$1</h3>'
+        );
+
         // Convert code blocks (```) to <pre><code>
         content = content.replace(/```([\s\S]*?)```/g, function (match, code) {
             return `<pre class="bg-gray-700 rounded-md p-3 overflow-x-auto my-2 max-w-full"><code class="text-sm whitespace-pre-wrap break-words">${code.trim()}</code></pre>`;

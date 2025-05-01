@@ -43,8 +43,9 @@ class AI:
             2. Follow ONLY_FULL_GROUP_BY rules
             3. Use backticks (`) for identifiers
             4. Return only valid MySQL SELECT queries
-            5. Always include a LIMIT clause for safety (default LIMIT 100)
+            5. Always include a LIMIT clause for safety if the amount of data is too big.
             6. Do not include any explanations, only the query ready to be executed, nothing else.
+            7. Double check if the query is correct based on the database schema.
             """
         }
 
@@ -148,8 +149,6 @@ class AI:
                 messages=messages,
                 temperature=0.1
             )
-
-            current_app.logger.info(f"Response: {response}")
             
             # Properly handle the API response
             if not response.choices or not response.choices[0].message:
@@ -220,6 +219,11 @@ class AI:
         3. Não repita os dados literalmente, SOMENTE SE o usuário solicitar
         4. Seja conciso e claro
         5. Se não houver resultados, explique por que isso pode ter acontecido, mas APENAS se não houver
+        6. Se o usuário solicitar qualquer dado sensível, apenas responda 'Não tenho autorização para fornecer estes dados'
+        7. Apenas explique análises relacionadas à pesagem ou aos animais, qualquer pergunta fora deste contexto deve ser rejeitada.
+        8. Em HIPÓTESE ALGUMA forneca dados de usuário como resposta.
+        9. Qualquer pergunta sobre usuários deve ser rejeitada, você não está autorizado a fornecer nenhum dados sensível e nem discorrer sobre eles.
+        10. Você pode fornecer quaisquer dados brutos fora os dados de usuários e outros dados sensíveis.
         """
         
         try:
