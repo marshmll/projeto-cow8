@@ -46,6 +46,7 @@ class AI:
             5. Always include a LIMIT clause for safety if the amount of data is too big.
             6. Do not include any explanations, only the query ready to be executed, nothing else.
             7. Double check if the query is correct based on the database schema.
+            8. Give the column names aliases that indicate exaclty what that value represents based on the user's question.
             """
         }
 
@@ -145,7 +146,7 @@ class AI:
             ]
             
             response = self._client.chat.completions.create(
-                model='deepseek/deepseek-chat-v3-0324:free',
+                model='deepseek/deepseek-chat:free',
                 messages=messages,
                 temperature=0.1
             )
@@ -215,7 +216,7 @@ class AI:
         
         Forneça uma resposta direta em português que:
         1. Responda à pergunta original
-        2. Explique os dados de forma descritiva
+        2. Responda somente à pergunta original, use os dados fornecidos apenas para fazer a análise solicitada.
         3. Não repita os dados literalmente, SOMENTE SE o usuário solicitar
         4. Seja conciso e claro
         5. Se não houver resultados, explique por que isso pode ter acontecido, mas APENAS se não houver
@@ -224,11 +225,12 @@ class AI:
         8. Em HIPÓTESE ALGUMA forneca dados de usuário como resposta.
         9. Qualquer pergunta sobre usuários deve ser rejeitada, você não está autorizado a fornecer nenhum dados sensível e nem discorrer sobre eles.
         10. Você pode fornecer quaisquer dados brutos fora os dados de usuários e outros dados sensíveis.
+        11. Use todas as interações anteriores como base para resposta final
         """
         
         try:
             response = self._client.chat.completions.create(
-                model='deepseek/deepseek-chat-v3-0324:free',
+                model='deepseek/deepseek-chat:free',
                 messages=[
                     {"role": "system", "content": "Você é um analista de dados respondendo em português."},
                     {"role": "user", "content": prompt}
@@ -264,7 +266,7 @@ class AI:
             # Step 3: Explain results
             response = self.explain_results(question, results)
             
-            return response
+            return response, sql
             
         except Exception as e:
             error_msg = f"Erro: {str(e)}"
@@ -280,7 +282,7 @@ class AI:
         
         try:
             response = self._client.chat.completions.create(
-                model='deepseek/deepseek-chat-v3-0324:free',
+                model='deepseek/deepseek-chat:free',
                 messages=[
                     *[{"role": h["role"], "content": h["content"]} 
                       for h in self._history 

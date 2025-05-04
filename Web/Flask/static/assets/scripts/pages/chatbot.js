@@ -175,6 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = await response.json();
 
             hideTyping();
+            addMessage("assistant", json.sql);
             addMessage("assistant", json.response);
         } catch (error) {
             hideTyping();

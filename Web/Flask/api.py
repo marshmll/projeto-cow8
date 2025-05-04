@@ -730,6 +730,6 @@ def prompt_chatbot():
     if 'content' not in data:
         return jsonify({'message': 'Invalid Payload.'}), 422
 
-    res = current_app.extensions['ai'].ask_about_data(data['content'])
+    res, sql = current_app.extensions['ai'].ask_about_data(data['content'])
 
-    return jsonify({'response': res})
+    return jsonify({'response': res, 'sql': sql})
