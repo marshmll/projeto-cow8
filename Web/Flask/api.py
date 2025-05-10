@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from database.database import get_db
 from database import models
 from datetime import datetime, timedelta
-from sqlalchemy import extract, func, distinct, update, case
+from sqlalchemy import extract, func, distinct, update, case, exists
 from sqlalchemy.exc import IntegrityError
 import locale
 import bcrypt
@@ -300,9 +300,9 @@ def periodic_analysis():
     try:
         # Parse dates and include the full end date by setting time to 23:59:59
         start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
-        start_datetime = datetime.combine(start_date, datetime.min.time()) # Set to start of day
+        start_datetime = datetime.combine(start_date, datetime.min.time())
         end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
-        end_datetime = datetime.combine(end_date, datetime.max.time())  # Set to end of day
+        end_datetime = datetime.combine(end_date, datetime.max.time())
     except (KeyError, ValueError):
         return jsonify({'error': 'Datas inválidas. Use o formato YYYY-MM-DD'}), 400
 
@@ -312,26 +312,23 @@ def periodic_analysis():
     db = get_db()
 
     try:
-        # Pré-busca dos pesos no período para evitar múltiplos acessos no banco
+        # Weight statistics
         weight_query = db.query(
             func.avg(models.ControlePesagem.medicao_peso),
             func.min(models.ControlePesagem.medicao_peso),
             func.max(models.ControlePesagem.medicao_peso),
-            func.count(models.ControlePesagem.id_animal)
+            func.count(models.ControlePesagem.datahora_pesagem)
         ).filter(
             models.ControlePesagem.datahora_pesagem >= start_datetime,
-            models.ControlePesagem.datahora_pesagem <= end_datetime  # Use the end_datetime with time component
+            models.ControlePesagem.datahora_pesagem <= end_datetime
         ).first()
-
         avg_weight, min_weight, max_weight, weight_count = weight_query or (0, 0, 0, 0)
 
-        # Contagem total de animais
+        # Total animals and underweight count
         total_animals = db.query(func.count(models.Animal.id)).scalar() or 0
-
-        # Contagem de animais abaixo de 90% do peso médio
         underweight_count = db.query(
             func.count(distinct(models.ControlePesagem.id_animal))
-        ).select_from(models.ControlePesagem).join(
+        ).join(
             models.Animal, models.Animal.id == models.ControlePesagem.id_animal
         ).join(
             models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
@@ -341,39 +338,49 @@ def periodic_analysis():
             models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.9
         ).scalar() or 0
 
-        # Tendências de peso
-        trend = db.query(
-            func.sum(
-                case(
-                    (models.ControlePesagem.medicao_peso > models.DadosAnimal.peso_medio * 1.05, 1),
-                    else_=0
-                )
-            ).label('gaining'),
-            func.sum(
-                case(
-                    (models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.95, 1),
-                    else_=0
-                )
-            ).label('losing'),
-            func.sum(
-                case(
-                    (models.ControlePesagem.medicao_peso.between(
-                        models.DadosAnimal.peso_medio * 0.95,
-                        models.DadosAnimal.peso_medio * 1.05
-                    ), 1),
-                    else_=0
-                )
-            ).label('stable')
-        ).select_from(models.ControlePesagem).join(
-            models.Animal, models.Animal.id == models.ControlePesagem.id_animal
+       # Animal trend classification
+        trend_subquery = db.query(
+            models.Animal.id,
+            case(
+                # Gaining if ANY measurement is >105% of average
+                (exists().where(
+                    models.ControlePesagem.id_animal == models.Animal.id,
+                    models.ControlePesagem.medicao_peso > models.DadosAnimal.peso_medio * 1.05,
+                    models.ControlePesagem.datahora_pesagem >= start_datetime,
+                    models.ControlePesagem.datahora_pesagem <= end_datetime
+                ), 'gaining'),
+                # Losing if ANY measurement is <95% of average AND NONE are >105%
+                (exists().where(
+                    models.ControlePesagem.id_animal == models.Animal.id,
+                    models.ControlePesagem.medicao_peso < models.DadosAnimal.peso_medio * 0.95,
+                    models.ControlePesagem.datahora_pesagem >= start_datetime,
+                    models.ControlePesagem.datahora_pesagem <= end_datetime
+                ) & ~exists().where(
+                    models.ControlePesagem.id_animal == models.Animal.id,
+                    models.ControlePesagem.medicao_peso > models.DadosAnimal.peso_medio * 1.05,
+                    models.ControlePesagem.datahora_pesagem >= start_datetime,
+                    models.ControlePesagem.datahora_pesagem <= end_datetime
+                ), 'losing'),
+                # Stable if ALL measurements are between 95%-105% of average
+                else_='stable'
+            ).label('trend')
         ).join(
             models.DadosAnimal, models.DadosAnimal.id == models.Animal.id_dados_animal
         ).filter(
-            models.ControlePesagem.datahora_pesagem >= start_datetime,
-            models.ControlePesagem.datahora_pesagem <= end_datetime
-        ).first()
+            exists().where(
+                models.ControlePesagem.id_animal == models.Animal.id,
+                models.ControlePesagem.datahora_pesagem >= start_datetime,
+                models.ControlePesagem.datahora_pesagem <= end_datetime
+            )
+        ).subquery()
 
-        # Distribuição por raças
+        trend_counts = db.query(
+            func.sum(case((trend_subquery.c.trend == 'gaining', 1), else_=0)).label('gaining_count'),
+            func.sum(case((trend_subquery.c.trend == 'losing', 1), else_=0)).label('losing_count'),
+            func.sum(case((trend_subquery.c.trend == 'stable', 1), else_=0)).label('stable_count')
+        ).select_from(trend_subquery).first()
+
+        # Breed distribution
         breed_distribution = db.query(
             models.DadosAnimal.raca,
             func.count(models.Animal.id)
@@ -381,10 +388,10 @@ def periodic_analysis():
             models.Animal, models.Animal.id_dados_animal == models.DadosAnimal.id
         ).group_by(models.DadosAnimal.raca).all()
 
-        # Uso das balanças
+        # Scale usage
         scale_usage = db.query(
             models.Balanca.uid,
-            func.count(models.ControlePesagem.id_animal)
+            func.count(models.ControlePesagem.uid_balanca)
         ).join(
             models.ControlePesagem, models.ControlePesagem.uid_balanca == models.Balanca.uid
         ).filter(
@@ -410,9 +417,9 @@ def periodic_analysis():
                 'measurements': weight_count
             },
             'trends': {
-                'gaining': trend.gaining or 0,
-                'losing': trend.losing or 0,
-                'stable': trend.stable or 0
+                'gaining': trend_counts.gaining_count or 0,
+                'losing': trend_counts.losing_count or 0,
+                'stable': trend_counts.stable_count or 0
             },
             'breeds': [
                 {'name': breed, 'count': count} for breed, count in breed_distribution
@@ -426,7 +433,6 @@ def periodic_analysis():
         return jsonify({'error': str(e)}), 500
     finally:
         db.remove()
-
 
 @api.route('/api/users/all')
 @login_required
