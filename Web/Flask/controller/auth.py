@@ -1,12 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from database.database import get_db
-from database.models import Usuario
-from sqlalchemy import or_
-from base64 import b64decode
-import bcrypt
-import locale
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
+
+from model.usuario import Usuario
+from utils.pbkdf import Pbkdf
 
 auth = Blueprint('auth', __name__)
 
@@ -23,9 +19,7 @@ def login_post():
     password = request.form.get('pass')
     remember = True if request.form.get('remember') else False
 
-    db = get_db()
-
-    user = db.query(Usuario).filter(or_(Usuario.username == username_or_email, Usuario.email == username_or_email)).first()
+    user = Usuario.get_usuario_by_username_or_email(username_or_email)
 
     if not user:
         flash('Usuário inexistente.')
@@ -35,17 +29,12 @@ def login_post():
         flash('Este usuário foi banido por tempo indeterminado.')
         return redirect(url_for('auth.login'))
 
-    salt = b64decode(user.salt)
-    key = bcrypt.kdf(password=bytes(password, 'utf-8'), salt=salt, desired_key_bytes=32, rounds=100)
-    expected = b64decode(user.key)
-
-    if key != expected:
+    if not Pbkdf.is_valid_password(user.key, user.salt, password):
         flash('Credenciais inválidas.')
         return redirect(url_for('auth.login'))
     
     login_user(user, remember=remember)
 
-    db.remove()
     return redirect(url_for('main.index'))
 
 @auth.route('/logout')

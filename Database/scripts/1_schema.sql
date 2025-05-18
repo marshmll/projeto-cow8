@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS Balanca (
     UNIQUE(uid)
 );
 
-CREATE TABLE IF NOT EXISTS DadosAnimal (
+CREATE TABLE IF NOT EXISTS CategoriaAnimal (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     raca VARCHAR(50) NOT NULL,
     peso_medio NUMERIC(7, 2) NOT NULL
@@ -37,11 +37,11 @@ CREATE TABLE IF NOT EXISTS Animal (
     uid VARCHAR(120) NOT NULL,
     sexo CHAR(1) NOT NULL,
     id_dados_animal INT,
-    FOREIGN KEY (id_dados_animal) REFERENCES DadosAnimal(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_dados_animal) REFERENCES CategoriaAnimal(id) ON DELETE CASCADE,
     UNIQUE(uid)
 );
 
-CREATE TABLE IF NOT EXISTS ControlePesagem (
+CREATE TABLE IF NOT EXISTS RegistroPesagem (
     id_animal INT NOT NULL,
     uid_balanca VARCHAR(120) NOT NULL,
     datahora_pesagem DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),

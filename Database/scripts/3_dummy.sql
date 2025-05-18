@@ -1,4 +1,4 @@
-INSERT INTO DadosAnimal (raca, peso_medio) VALUES
+INSERT INTO CategoriaAnimal (raca, peso_medio) VALUES
 ('Nelore', 500.00),
 ('Angus', 600.00),
 ('Brahman', 550.00),
@@ -19,7 +19,7 @@ INSERT INTO Animal (uid, sexo, id_dados_animal) VALUES
 ('Zjc4MGI2YzYxYjNmNDVkY2U5MDRjNDg4YjBhNDRjZjE=', 'F', 4),
 ('NzVjNTliMmEyMjc1NzYyNWIzYzFkOWUyNDQxNWU4NWE=', 'M', 5);
 
-INSERT INTO ControlePesagem (id_animal, uid_balanca, datahora_pesagem, medicao_peso, observacoes) VALUES
+INSERT INTO RegistroPesagem (id_animal, uid_balanca, datahora_pesagem, medicao_peso, observacoes) VALUES
 (1, 'f654', '2025-01-05 09:00:00', 400.00, 'Peso inicial - saudável'),
 (1, 'f654', '2025-01-20 10:00:00', 410.00, 'Crescimento normal'),
 (2, '89f3', '2025-01-05 09:00:00', 450.00, 'Peso inicial - abaixo do esperado'),

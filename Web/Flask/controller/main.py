@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, abort, url_for
+from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
-from database.database import get_db
-from database import models
-import locale
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
+from model.animal import Animal
+from model.registro_pesagem import RegistroPesagem
 
 main = Blueprint('main', __name__)
 
@@ -42,11 +41,9 @@ links_user = {
 }
 
 def prepare_data():
-    db = get_db()
-    
     data = {}
-    data['animal_count'] = len(db.query(models.Animal).all())
-    data['measurement_count'] = len(db.query(models.ControlePesagem).all())
+    data['animal_count'] = len(Animal.get_all_animais())
+    data['measurement_count'] = len(RegistroPesagem.get_all_registros())
     data['user'] = current_user
 
     for key, value in links_user.items():
@@ -60,7 +57,6 @@ def prepare_data():
     else:
         data['links'] = links_user
 
-    db.remove()
     return data
 
 @main.route('/')
