@@ -15,6 +15,7 @@ from model.database import Base, engine
 from model.usuario import Usuario
 
 from utils.mqtt import MQTTClient
+from utils.database_ai_assistant import DatabaseAIAssistant
 
 # Initialize DB schema
 Base.metadata.create_all(bind=engine)
@@ -131,17 +132,10 @@ def create_app():
         if not mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', Callbacks.scale_status_refresh):
             app.logger.error('Failed to connect to cow8/status')
 
-        # DEEPSEEK_KEY = os.getenv('DEEPSEEK_KEY')
 
-        # if not DEEPSEEK_KEY:
-        #     app.logger.error('Failed to load DeepSeek API key.')
+        if not os.getenv('OPENROUTER_API_KEY'):
+            app.logger.error('Failed to load OpenRouter API key.')
 
-        # ai_client = AI(api_key=DEEPSEEK_KEY)
-
-        # app.extensions['ai'] = ai_client
-
-    # @app.teardown_appcontext
-    # def shutdown_session(exception=None):
-    #     pass
+        app.extensions['ai'] = DatabaseAIAssistant()
 
     return app
