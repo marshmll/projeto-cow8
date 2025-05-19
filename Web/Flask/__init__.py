@@ -109,7 +109,7 @@ def create_app():
     app = Flask(__name__, template_folder="view", static_folder='static')
     app.config['SECRET_KEY'] = 'a318704cff8cefa6b49509810c54e4424483201bf340eb6be53deedff42e2668'
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-    app.logger.setLevel(logging.INFO)
+    app.logger.setLevel(logging.DEBUG)
 
     # Setup components
     configure_login_manager(app)
@@ -125,8 +125,11 @@ def create_app():
         if not mqtt_client.connect():
             app.logger.error('Failed to connect to MQTT')
 
-        mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurements', Callbacks.record_measurement)
-        mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', Callbacks.scale_status_refresh)
+        if not mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurements', Callbacks.record_measurement):
+            app.logger.error('Failed to connect to cow8/measurements')
+        
+        if not mqtt_client.add_listener_on_topic('scale_status_handler', 'cow8/status', Callbacks.scale_status_refresh):
+            app.logger.error('Failed to connect to cow8/status')
 
         # DEEPSEEK_KEY = os.getenv('DEEPSEEK_KEY')
 

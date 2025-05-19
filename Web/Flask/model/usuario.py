@@ -48,32 +48,33 @@ class Usuario(Base, UserMixin):
     def update(self, data):
         db = get_db()
 
-        # Update non-password fields
-        if 'username' in data:
-            self.username = data['username']
-        if 'nome_completo' in data:
-            self.nome_completo = data['nome_completo']
-        if 'email' in data:
-            self.email = data['email']
-        if 'pfp_url' in data:
-            self.pfp_url = data['pfp_url']
+        username = data['username'] if 'username' in data else self.username
+        nome_completo = data['nome_completo'] if 'nome_completo' in data else self.nome_completo
+        email = data['email'] if 'email' in data else self.email
+        pfp_url = data['pfp_url'] if 'pfp_url' in data else self.pfp_url
 
-        # Update password (if provided)
         if 'new_password' in data and data['new_password']:
-            salt = bcrypt.gensalt(rounds=12)
-            salt_str = b64encode(salt).decode('utf-8')
-            key = bcrypt.kdf(
-                password=data['new_password'].encode(),
-                salt=salt,
-                desired_key_bytes=32,
-                rounds=100
+            key, salt = Pbkdf.hash_password(data['new_password'])
+        else:
+            key, salt = self.key, self.salt
+
+        stmt = (
+            update(Usuario)
+            .where(Usuario.username == self.username)
+            .values(
+                username=username,
+                nome_completo=nome_completo,
+                email=email,
+                pfp_url=pfp_url,
+                key=key,
+                salt=salt
             )
-            key_str = b64encode(key).decode('utf-8')
-            self.key = key_str
-            self.salt = salt_str
+        )
 
         try:
+            db.execute(stmt)
             db.commit()
+            db.flush()
         except IntegrityError as e:
             db.rollback()
             raise e
