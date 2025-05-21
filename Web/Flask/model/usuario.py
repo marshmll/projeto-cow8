@@ -1,30 +1,33 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import String, Text, Integer, DateTime, UniqueConstraint, func, or_, update
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Text, Integer, DateTime, ForeignKey, UniqueConstraint, func, or_, update
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.exc import IntegrityError
 from flask_login import UserMixin
-import bcrypt
-from base64 import b64encode
 
-from .base import Base
-from model.database import get_db
+from model.database import Base, get_db
+from model.role import Role
+
 from utils.pbkdf import Pbkdf
 
 class Usuario(Base, UserMixin):
     __tablename__ = 'Usuario'
 
     id : Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    id_role : Mapped[int] = mapped_column(ForeignKey('Role.id'))
     username : Mapped[str] = mapped_column(String(120), nullable=False)
     nome_completo : Mapped[str] = mapped_column(Text, nullable=False)
     email : Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     pfp_url : Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     datahora_registro : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.current_timestamp())
     status : Mapped[str] = mapped_column(String(50), nullable=False, default="Ativo")
-    privilegios : Mapped[str] = mapped_column(String(50), nullable=False, default="Usuário")
     key : Mapped[str] = mapped_column(Text, nullable=False)
     salt : Mapped[str] = mapped_column(Text, nullable=False)
+
+    role : Mapped['Role'] = relationship(
+        back_populates='usuarios', lazy='subquery'
+    )
 
     __table_args__ = (
         UniqueConstraint("username", name="uq_username"),
@@ -85,7 +88,9 @@ class Usuario(Base, UserMixin):
     @staticmethod
     def get_all_usuarios():
         db = get_db()
-        users = [user for user in db.query(Usuario).filter(Usuario.username != 'admin').all()]
+        users = [
+            user for user in db.query(Usuario, Role).filter(Usuario.id_role == Role.id).filter(Usuario.username != 'admin').all()
+        ]
         db.remove()
         return users
     
@@ -162,16 +167,16 @@ class Usuario(Base, UserMixin):
         return res
     
     @staticmethod
-    def create_user(username: str, nome_completo: str, email: str, password: str, privilegios: str = "Usuário", pfp_url = None):
+    def create_user(username: str, nome_completo: str, email: str, password: str, role: Role, pfp_url = None):
         db = get_db()
         
         key, salt = Pbkdf.hash_password(password)
 
         usuario = Usuario(
+            id_role=role.id,
             username=username,
             nome_completo=nome_completo,
             email=email,
-            privilegios=privilegios,
             salt=salt, key=key,
             pfp_url=pfp_url
         )

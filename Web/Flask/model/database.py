@@ -4,7 +4,7 @@ from sqlalchemy.schema import CreateTable
 
 DATABASE_URI = "mysql+mysqlconnector://client:bancodedados@localhost:3307/cow8_db"
 
-engine = create_engine(DATABASE_URI, echo=False)
+engine = create_engine(DATABASE_URI, echo=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

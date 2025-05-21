@@ -4,7 +4,9 @@ function setUsersListData(data) {
     const usersList = document.querySelector(".users-list");
     let html = "";
 
-    data.forEach((user) => {
+    data.forEach(([user, role]) => {
+        console.log(user);
+
         html += `
         <li class="bg-gray-700 w-full rounded-lg flex flex-col md:flex-row items-stretch md:items-center p-3 text-white text-sm gap-3 md:gap-4">
             <!-- Left Section - User Info -->
@@ -19,7 +21,7 @@ function setUsersListData(data) {
                         ${user.nome_completo}
                     </p>
                     <p class="text-gray-300 text-xs truncate">
-                        ${user.privilegios}
+                        ${role.name}
                     </p>
                 </div>
             </div>

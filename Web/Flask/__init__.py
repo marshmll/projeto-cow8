@@ -6,19 +6,20 @@ from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 from flask_login import LoginManager
 
-from controller.auth import auth as auth_blueprint
-from controller.main import main as main_blueprint
-from controller.api import api as api_blueprint
+from controller.auth import _auth as auth_blueprint
+from controller.user import _user as user_blueprint
+from controller.scale import _scale as scale_blueprint
+from controller.statistics import _statistics as statistics_blueprint
+from controller.chatbot import _chatbot as chatbot_blueprint
+
 from controller.callbacks import Callbacks
 
 from model.database import Base, engine
 from model.usuario import Usuario
+from model.role import Role
 
 from utils.mqtt import MQTTClient
 from utils.database_ai_assistant import DatabaseAIAssistant
-
-# Initialize DB schema
-Base.metadata.create_all(bind=engine)
 
 # Load dotenv
 load_dotenv()
@@ -37,22 +38,34 @@ def configure_login_manager(app: Flask):
 
 def register_blueprints(app: Flask):
     """Register all application blueprints."""
-
     app.register_blueprint(auth_blueprint)
-    app.register_blueprint(main_blueprint)
-    app.register_blueprint(api_blueprint)
+    app.register_blueprint(user_blueprint)
+    app.register_blueprint(scale_blueprint)
+    app.register_blueprint(statistics_blueprint)
+    app.register_blueprint(chatbot_blueprint)
 
+
+def initialize_roles():
+    roles = ['Administrador', 'Operador']
+
+    try:
+        for name in roles:
+            if not Role.get_role_by_name(name=name):
+                Role.create_role(name=name)
+    except IntegrityError as e:
+        logging.error(f'Failed to create roles: {e}')
 
 def initialize_admin_user():
     """Ensure admin user exists."""
     try:
+        role = Role.get_role_by_name(name='Administrador')
         if not Usuario.get_usuario_by_username('admin'):
-            admin = Usuario.create_user(
+            Usuario.create_user(
                 username='admin',
                 nome_completo='Administrador',
                 email="admin@admin.com",
                 password='Administrador@2025',
-                privilegios='Administrador'
+                role=role
             )
     except IntegrityError as e:
         logging.error(f'Failed to create admin user: {e}')
@@ -93,6 +106,7 @@ def initialize_regular_users():
     ]
 
     try:
+        role = Role.get_role_by_name(name='Operador')
         for user in users:
             if not Usuario.get_usuario_by_username(user['username']):
                 Usuario.create_user(
@@ -100,7 +114,8 @@ def initialize_regular_users():
                     nome_completo=user['name'],
                     password='Usuario@2025',
                     email=user['email'],
-                    pfp_url=user['pfp']
+                    pfp_url=user['pfp'],
+                    role=role
                 )
     except IntegrityError as e:
         logging.error(f'Failed to create regular users: {e}')
@@ -112,14 +127,19 @@ def create_app():
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.logger.setLevel(logging.DEBUG)
 
-    # Setup components
     configure_login_manager(app)
     register_blueprints(app)
-    initialize_admin_user()
-    initialize_regular_users()
 
     # Only run in the main reloader process
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
+        # Initialize DB schema
+        Base.metadata.create_all(bind=engine)
+
+        # Setup components
+        initialize_roles()
+        initialize_admin_user()
+        initialize_regular_users()
+
         mqtt_client = MQTTClient()
         app.extensions['mqtt'] = mqtt_client
 

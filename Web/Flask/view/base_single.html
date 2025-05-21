@@ -89,9 +89,9 @@
                     href="/"
                     class="bg-blue-600 text-white w-10 h-10 border-none rounded-lg cursor-pointer bg-[url('/static/assets/images/icons/icon_white.svg')] bg-center bg-no-repeat bg-[length:70%] hover:scale-105 transition-transform duration-200"
                 ></a>
-                {% for key, value in data['links'].items() %}
+                {% for key, value in data['routes'].items() %}
                 <a
-                    href="{{ value.link }}"
+                    href="{{ value.route }}"
                     class="px-4 py-2 rounded-lg {% if value.active %}bg-blue-600{% else %}bg-transparent{% endif %} text-white hover:scale-105 transition-transform duration-200"
                 >
                     {{ key }}
