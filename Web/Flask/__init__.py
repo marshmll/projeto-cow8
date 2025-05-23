@@ -27,7 +27,7 @@ load_dotenv()
 def configure_login_manager(app: Flask):
     """Configure Flask-Login manager."""
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = '_auth.login'
     login_manager.login_message = 'É necessário fazer login para acessar esta página.'
     login_manager.init_app(app)
 
