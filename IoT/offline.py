@@ -57,7 +57,7 @@ while True:
     
     print("Esperando por tag NFC...")
     
-    if (nfc.is_card_present()):
+    if (nfc.is_tag_present()):
         print("Tag nfc detectada!")
         
         status, tag_type, uid, data = nfc.read_block(DEFAULT_BLOCK)

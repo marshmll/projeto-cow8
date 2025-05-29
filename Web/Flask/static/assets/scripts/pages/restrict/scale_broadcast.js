@@ -89,7 +89,7 @@ function setupCommandButtons(scaleUid) {
 
                 // Refresh scale status if needed
                 if (["enable", "disable", "power_off"].includes(command)) {
-                    setTimeout(refreshScaleStatus, 1500);
+                    setTimeout(refreshScaleStatus, 3000);
                 }
             } catch (error) {
                 feedback.querySelector(

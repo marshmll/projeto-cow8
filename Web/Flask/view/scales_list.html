@@ -91,7 +91,7 @@
             >
                 Listar Balanças
             </a>
-            {% if data['user'].privilegios == 'Administrador' %}
+            {% if data['user'].role.name == 'Administrador' %}
             <a
                 href="/scales/register"
                 class="px-4 py-2 rounded-lg bg-transparent text-white hover:scale-105 transition-transform duration-200"
@@ -111,7 +111,7 @@
 
 {% block scripts %}
 
-{% if data['user'].privilegios == 'Administrador' %}
+{% if data['user'].role.name == 'Administrador' %}
 <script
     type="module"
     src="/static/assets/scripts/pages/restrict/scales_list.js"

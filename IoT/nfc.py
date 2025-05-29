@@ -168,7 +168,7 @@ class NFC:
 
     def read_block(self, block):
         self.init()
-        status, _ = self.request(self.REQIDL)
+        status, tag_type = self.request(self.REQIDL)
         if status != self.OK:
             return self.NOTAGERR, None, None, None
 
@@ -183,7 +183,7 @@ class NFC:
             return self.AUTHERR, None, None, None
 
         data = self._read_block(block)
-        return self.OK, None, uid, data
+        return self.OK, tag_type, uid, data
 
     def write_block(self, block, data):
         self.init()
@@ -205,7 +205,7 @@ class NFC:
         self.stop_crypto()
         return (self.OK, None, uid) if status == self.OK else (self.WRITERR, None, None)
 
-    def is_card_present(self):
+    def is_tag_present(self):
         self.init()
         status, _ = self.request(self.REQIDL)
         return status == self.OK

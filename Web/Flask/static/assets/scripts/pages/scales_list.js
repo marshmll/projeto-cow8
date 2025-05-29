@@ -6,7 +6,8 @@ import { showScaleBroadcastCommands } from "./restrict/scale_broadcast.js";
 // Cache DOM elements
 const scalesList = document.querySelector(".scales-list");
 
-const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
+// const client = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
+const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
 client.on("connect", () => {
     console.log("Connected to broker");

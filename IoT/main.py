@@ -91,7 +91,8 @@ WIFI_PASSWORD = "131003240706"
 
 # Dados para conexão ao broker
 MQTT_CLIENT_ID = "f654"
-MQTT_BROKER    = "broker.emqx.io"
+# MQTT_BROKER    = "broker.emqx.io"
+MQTT_BROKER    = "broker.hivemq.com"
 MQTT_PORT      = 1883
 MQTT_USER      = ""
 MQTT_PASSWORD  = ""
@@ -176,6 +177,7 @@ def do_connect_wifi(retries=3):
             info_sound()
             return
         except Exception as e:
+            print(str(e))
             print("Erro na conexão Wi-FI, tentando novamente...")
             warning_sound()
     
@@ -228,8 +230,8 @@ def refresh_status():
             send_status('Desabilitado')
 
 startup_sound()
-do_connect_wifi()
-do_connect_mqtt()
+do_connect_wifi(10)
+do_connect_mqtt(10)
 
 try:
     while True:
@@ -248,7 +250,7 @@ try:
     
         print("Esperando por tag NFC...")
     
-        if (nfc.is_card_present()):
+        if (nfc.is_tag_present()):
             print("Tag nfc detectada!")
         
             status, tag_type, uid, data = nfc.read_block(DEFAULT_BLOCK)

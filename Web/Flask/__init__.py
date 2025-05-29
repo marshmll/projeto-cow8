@@ -143,7 +143,7 @@ def create_app():
         mqtt_client = MQTTClient()
         app.extensions['mqtt'] = mqtt_client
 
-        if not mqtt_client.connect():
+        if not mqtt_client.connect(broker='broker.hivemq.com'):
             app.logger.error('Failed to connect to MQTT')
 
         if not mqtt_client.add_listener_on_topic('database_handler', 'cow8/measurements', Callbacks.record_measurement):

@@ -442,7 +442,7 @@ const dashboard = {
 };
 
 // MQTT Client
-const mqttClient = mqtt.connect("wss://broker.emqx.io:8084/mqtt");
+const mqttClient = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
 mqttClient.on("connect", () => {
     console.log("Connected to broker");
