@@ -16,6 +16,10 @@ routes_admin = {
     'Analista de Dados IA': {
         'route': '/chatbot',
         'active': False
+    },
+    'Sobre o Cow8': {
+        'route': '/about',
+        'active': False
     }
 }
 
@@ -30,6 +34,10 @@ routes_user = {
     },
     'Analista de Dados IA': {
         'route': '/chatbot',
+        'active': False
+    },
+    'Sobre o Cow8': {
+        'route': '/about',
         'active': False
     }
 }

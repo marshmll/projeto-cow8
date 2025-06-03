@@ -11,6 +11,7 @@ from controller.user import _user as user_blueprint
 from controller.scale import _scale as scale_blueprint
 from controller.statistics import _statistics as statistics_blueprint
 from controller.chatbot import _chatbot as chatbot_blueprint
+from controller.other import _other as other_blueprint
 
 from controller.callbacks import Callbacks
 
@@ -43,6 +44,7 @@ def register_blueprints(app: Flask):
     app.register_blueprint(scale_blueprint)
     app.register_blueprint(statistics_blueprint)
     app.register_blueprint(chatbot_blueprint)
+    app.register_blueprint(other_blueprint)
 
 
 def initialize_roles():
