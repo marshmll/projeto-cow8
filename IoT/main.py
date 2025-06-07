@@ -31,8 +31,8 @@ hx.tare(10)
 disable = False
 
 # Servos
-servo1 = Servo(21)
-servo2 = Servo(5)
+servo1 = Servo(5)
+servo2 = Servo(21)
 servo1.move(90)
 servo2.move(0)
 
