@@ -3,7 +3,7 @@ services:
     container_name: webserver
     build: 
       context: .
-      dockerfile: Docker/flask/Dockerfile
+      dockerfile: ./Dockerfile
     network_mode: host
     depends_on:
       db:

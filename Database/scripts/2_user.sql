@@ -1,4 +1,4 @@
-CREATE USER 'client'@'%' IDENTIFIED BY 'bancodedados';
-GRANT SELECT, UPDATE, DELETE, INSERT ON *.* TO 'client'@'%';
+CREATE USER 'client'@'177.4.99.14' IDENTIFIED BY 'bancodedados';
+GRANT SELECT, UPDATE, DELETE, INSERT ON *.* TO 'client'@'177.4.99.14';
 FLUSH PRIVILEGES;
 

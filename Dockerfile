@@ -10,6 +10,4 @@ COPY ./Web/Flask /app/Web/Flask
 
 WORKDIR /app/Web/Flask
 
-EXPOSE 8000
-
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=8000", "--debug"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=8080", "--debug"]
