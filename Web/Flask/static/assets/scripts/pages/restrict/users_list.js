@@ -5,8 +5,6 @@ function setUsersListData(data) {
     let html = "";
 
     data.forEach(([user, role]) => {
-        console.log(user);
-
         html += `
         <li class="bg-gray-700 w-full rounded-lg flex flex-col md:flex-row items-stretch md:items-center p-3 text-white text-sm gap-3 md:gap-4">
             <!-- Left Section - User Info -->

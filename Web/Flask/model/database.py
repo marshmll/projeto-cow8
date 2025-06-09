@@ -1,9 +1,6 @@
-from sqlalchemy import create_engine, MetaData, URL
+from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import sessionmaker, declarative_base, scoped_session
-from sqlalchemy.schema import CreateTable
 import os
-
-
 
 DATABASE_URI = URL.create(
     drivername="mysql+pymysql",
@@ -15,7 +12,7 @@ DATABASE_URI = URL.create(
 
 engine = create_engine(
     DATABASE_URI,
-    echo=True
+    echo=False
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

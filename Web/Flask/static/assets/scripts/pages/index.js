@@ -445,13 +445,11 @@ const dashboard = {
 const mqttClient = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
 
 mqttClient.on("connect", () => {
-    console.log("Connected to broker");
     mqttClient.subscribe("cow8/measurements");
 });
 
 mqttClient.on("message", () => {
     dashboard.update();
-    console.log("Updating");
 });
 
 // Initialize everything
