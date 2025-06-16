@@ -76,7 +76,7 @@ export function showScaleDetails(scale) {
                             scale.ultima_comunicacao
                                 ? new Date(
                                       scale.ultima_comunicacao
-                                  ).toLocaleTimeString()
+                                  ).toLocaleString()
                                 : "N/A"
                         })</span>
                     </p>
