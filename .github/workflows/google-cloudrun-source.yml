@@ -37,7 +37,7 @@ on:
 env:
   PROJECT_ID: 'tensile-impulse-462216-c3' # TODO: update to your Google Cloud project ID
   REGION: 'us-central1' # TODO: update to your region
-  SERVICE: 'projeto-cow8' # TODO: update to your service name
+  SERVICE: '29564565809-compute@developer.gserviceaccount.com' # TODO: update to your service name
 
 jobs:
   deploy:
