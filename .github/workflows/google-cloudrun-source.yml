@@ -1,12 +1,12 @@
-# This workflow will deploy source code on Cloud Run when a commit is pushed to
-# the "main" branch.
+# This workflow build and push a Docker container to Google Artifact Registry
+# and deploy it on Cloud Run when a commit is pushed to the "main"
+# branch.
 #
 # To configure this workflow:
 #
 # 1. Enable the following Google Cloud APIs:
 #
 #    - Artifact Registry (artifactregistry.googleapis.com)
-#    - Cloud Build (cloudbuild.googleapis.com)
 #    - Cloud Run (run.googleapis.com)
 #    - IAM Credentials API (iamcredentials.googleapis.com)
 #
@@ -20,24 +20,25 @@
 #    permissions on Google Cloud:
 #
 #    - Artifact Registry Administrator (roles/artifactregistry.admin)
-#    - Cloud Run Source Developer (roles/run.sourceDeveloper)
+#    - Cloud Run Developer (roles/run.developer)
 #
 #    You can learn more about setting IAM permissions at
-#    https://cloud.google.com/iam/docs/manage-access-other-resources.
+#    https://cloud.google.com/iam/docs/manage-access-other-resources
 #
 # 3. Change the values in the "env" block to match your values.
 
-name: 'Deploy to Cloud Run from Source'
+name: 'Build and Deploy to Cloud Run'
 
 on:
-  schedule:
-    - cron: '30 4 * * *'  
-  workflow_dispatch:
+  push:
+    branches:
+      - '"main"'
 
 env:
   PROJECT_ID: 'tensile-impulse-462216-c3' # TODO: update to your Google Cloud project ID
   REGION: 'us-central1' # TODO: update to your region
   SERVICE: 'projeto-cow8' # TODO: update to your service name
+  WORKLOAD_IDENTITY_PROVIDER: 'projects/29564565809/locations/global/workloadIdentityPools/github-pool-real/providers/github-provider-real' # TODO: update to your workload identity provider
 
 jobs:
   deploy:
@@ -59,18 +60,36 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@f112390a2df9932162083945e46d439060d66ec2' # google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/29564565809/locations/global/workloadIdentityPools/github-pool-real/providers/github-provider-real' # TODO: replace with your workload identity provider
+          workload_identity_provider: '${{ env.WORKLOAD_IDENTITY_PROVIDER }}'
 
+      # BEGIN - Docker auth and build
+      #
+      # If you already have a container image, you can omit these steps.
+      - name: 'Docker Auth'
+        uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567' # docker/login-action@v3
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.auth_token }}'
+          registry: '${{ env.REGION }}-docker.pkg.dev'
+
+      - name: 'Build and Push Container'
+        run: |-
+          DOCKER_TAG="$${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker build --tag "${DOCKER_TAG}" .
+          docker push "${DOCKER_TAG}"
       - name: 'Deploy to Cloud Run'
+
+        # END - Docker auth and build
+
         uses: 'google-github-actions/deploy-cloudrun@33553064113a37d688aa6937bacbdc481580be17' # google-github-actions/deploy-cloudrun@v2
         with:
           service: '${{ env.SERVICE }}'
           region: '${{ env.REGION }}'
-          project_id: '${{ env.PROJECT_ID }}'
-          # NOTE: If using a different source folder, update the image name below:
-          source: '.'
+          # NOTE: If using a pre-built image, update the image name below:
 
+          image: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}'
       # If required, use the Cloud Run URL output in later steps
       - name: 'Show output'
-        run: |-
+        run: |2-
+
           echo ${{ steps.deploy.outputs.url }}
