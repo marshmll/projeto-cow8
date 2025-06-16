@@ -211,11 +211,6 @@ function showUserDetails(user) {
                             user.datahora_registro
                         ).toLocaleDateString()}</p>
                     </div>
-                    
-                    <div class="space-y-1">
-                        <p class="text-gray-500 font-medium">Privilégios</p>
-                        <p class="text-gray-800">${user.privilegios}</p>
-                    </div>
                 </div>
             </div>
         `;
