@@ -125,7 +125,7 @@ def initialize_regular_users():
 def create_app():
     """Flask application factory."""
     app = Flask(__name__, template_folder="view", static_folder='static')
-    app.config['SECRET_KEY'] = 'a318704cff8cefa6b49509810c54e4424483201bf340eb6be53deedff42e2668'
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.logger.setLevel(logging.DEBUG)
 
