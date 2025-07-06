@@ -10,6 +10,8 @@ DATABASE_URI = URL.create(
     query={"unix_socket": "/cloudsql/" + os.environ.get('DB_URL')},
 )
 
+# DATABASE_URI = 'mysql+mysqlconnector://localhost:localhost@localhost:3307/cow8_db'
+
 engine = create_engine(
     DATABASE_URI,
     echo=False
