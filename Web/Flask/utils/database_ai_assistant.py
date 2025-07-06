@@ -46,7 +46,7 @@ class DatabaseAIAssistant():
     5. Keep response concise but informative
     6. Do not include any code, links, or technical details
     7. Detail your explanation of the data if the user requested
-    8. You can use basic markdown to organize your answer
+    8. You can use basic markdown, headers or lists to organize your answer
 
     Schema:
     {schema}
@@ -60,7 +60,7 @@ class DatabaseAIAssistant():
 
     template_graphic = """Generate a Chart.js visualization based on this data:
     1. Output ONLY the raw canvas element and self-executing script
-    2. No HTML, body, or other wrapper tags
+    2. No HTML, body, backticks or other wrapper tags
     3. No explanations or comments
     4. Generate a unique canvas ID based on the question
     5. Use appropriate chart type for the data
