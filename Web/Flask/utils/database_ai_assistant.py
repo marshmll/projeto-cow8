@@ -18,17 +18,14 @@ class DatabaseAIAssistant():
     template_sql = """
     Based on the table schema below, write a SQL query that would answer the user's question.
     Follow these STRICT rules:
-    1. Use only standard MySQL 8.0.32 syntax - avoid window functions not supported in MySQL
-    2. Never use PERCENTILE_CONT, WITHIN GROUP, or other advanced analytics functions
-    3. For median calculations, use a simple approach with COUNT and LIMIT
-    4. For mode calculations, use GROUP BY with COUNT and ORDER BY
-    5. Always include proper GROUP BY clauses for aggregate queries
-    6. Never include comments or explanations
-    7. Output only the raw SQL query, no backticks or markers
-    8. Verify the query syntax is valid before returning it
-    9. Use only tables and columns that exist in the schema
-    10. Include all required JOIN conditions
-    11. Make sure SQLAlchemy can run the query without issues
+    1. Ensure the query is syntactically correct and complete for MySQL 8.
+    2. Always include proper GROUP BY clauses for aggregate queries
+    3. Never include comments or explanations
+    4. Output only the raw SQL query, no backticks or markers
+    5. Verify the query syntax is valid before returning it
+    6. Do not make up column names. Use only tables and columns that exist in the schema
+    7. Include joins where necessary based on the foreign key relationships
+    8. Make sure SQLAlchemy can run the query without issues
 
     Schema:
     {schema}

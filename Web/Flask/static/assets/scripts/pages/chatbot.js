@@ -59,13 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add message to chat
   const addMessage = (role, content) => {
+    const messageUid = Date.now();
+
     const messageDiv = document.createElement("div");
     messageDiv.className = `flex ${
       role === "user" ? "justify-end" : "justify-start"
     }`;
 
     const messageContent = document.createElement("div");
-    messageContent.className = `text-white p-4 max-w-[85%] sm:max-w-[75%] shadow-md ${
+    messageContent.className = `text-white p-4 max-w-[85%] sm:max-w-[75%] shadow-md relative ${
       role === "user" ? "message-user" : "message-ai"
     }`;
 
@@ -73,13 +75,40 @@ document.addEventListener("DOMContentLoaded", () => {
       role === "user"
         ? formatContent(content)
         : `
-        <div class="flex items-start">
+        <div class="flex items-start relative">
           <div class="flex-shrink-0 mr-3 text-gray-400">
             <i class="fas fa-robot"></i>
           </div>
-          <div class="text-sm sm:text-base">${formatContent(content)}</div>
+          <div class="w-full overflow-auto">
+            <div id="${messageUid}" class="text-sm sm:text-base">${formatContent(
+            content
+          )}</div>
+            <button copies="${messageUid}" title="Copiar para Área de Transferência" class="floatingBtn absolute top-2 right-2 bg-blue-600 opacity-25 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 flex items-center gap-1 text-sm">
+              <i class="fas fa-copy text-xs"></i>
+            </button>
+          </div>
         </div>
       `;
+
+    // Copy functionality for AI messagess
+    if (role == "assistant") {
+      const copyBtn = messageContent.querySelector(".floatingBtn");
+      copyBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const button = e.currentTarget;
+        const messageId = button.getAttribute("copies");
+        const message = document.getElementById(messageId);
+        const messageText = message.innerText;
+
+        try {
+          await navigator.clipboard.writeText(messageText);
+          button.innerHTML = `<i class="fas fa-check text-xs"></i>`;
+          button.setAttribute("title", "Copiado!");
+        } catch (e) {
+          console.log("Failed to copy to clipboard: " + e);
+        }
+      });
+    }
 
     messageDiv.appendChild(messageContent);
     chatMessages.appendChild(messageDiv);
@@ -109,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           <div class="w-full overflow-auto max-h-[70vh] relative">
             ${content}
-            <button title="Baixar gráfico como imagem" class="downloadChartBtn absolute top-2 right-2 bg-blue-600 opacity-25 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 flex items-center gap-1 text-sm">
+            <button title="Baixar gráfico como imagem" class="floatingBtn absolute top-2 right-2 bg-blue-600 opacity-25 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded-full shadow-lg transition-all duration-200 ease-in-out transform hover:scale-105 flex items-center gap-1 text-sm">
               <i class="fas fa-download text-xs"></i>
             </button>
           </div>
@@ -119,8 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Add download chart functionality to the button
       const canvas = messageContent.querySelector("canvas");
-      const downloadChartBtn =
-        messageContent.querySelector(".downloadChartBtn");
+      const downloadChartBtn = messageContent.querySelector(".floatingBtn");
       downloadChartBtn.id = `download_${canvas.id}`;
 
       downloadChartBtn.addEventListener("click", (e) => {
